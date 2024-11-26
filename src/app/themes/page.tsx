@@ -17,7 +17,7 @@ export default function Themes({ closeThemes }: any) {
     // Trigger the slide-out animation before closing
     setIsVisible(false);
     setTimeout(closeThemes, 300); // Wait for animation to finish before closing
-  };
+  }; //redo
 
   return (
     <div
