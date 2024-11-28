@@ -1,13 +1,14 @@
-import MainNavbar from "./pageComponents/navbar";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
-  return (
-    <main>
-      <div>
-        <div>
-          <MainNavbar />
-        </div>
-      </div>
-    </main>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/pages/mainPage");
+  }, [router]); // Run once when the component mounts
+
+  return null;
 }
