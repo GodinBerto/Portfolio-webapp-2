@@ -11,7 +11,7 @@ export default function MainPage() {
           <div className="w-[400px] flex flex-col">
             <div className="flex flex-col gap-4 dark:text-white">
               <h1 className="font-semibold text-sm text-green-600">
-                Welcome to Berto'Studio
+                Welcome to Berto&apos;Studio
               </h1>
               <h2 className="font-bold text-5xl">
                 Enhance your site with stunning,
