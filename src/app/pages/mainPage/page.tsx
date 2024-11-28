@@ -34,7 +34,13 @@ export default function MainPage() {
               </div>
             </div>
           </div>
-          <div className="min-w-[500px]"></div>
+          <div className="min-w-[500px] dark:text-white">
+            <div>
+              <div>
+                <button>Button</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div className=" relative">
           <div>
