@@ -22,7 +22,7 @@ export default function MainPage() {
                 We specialize in providing high-quality components tailored to
                 make your web development faster, easier, and more stylish.
                 Whether you need sleek navigation menus, dynamic content
-                sections, or feature-packed widgets, we’ve got you covered.
+                sections, or feature-packed widgets, we&apos;ve got you covered.
               </p>
               <div className="flex gap-6">
                 <button className="border-none outline-none px-6 py-2 bg-green-600 rounded-md transition-transform transform hover:scale-110 text-white">
