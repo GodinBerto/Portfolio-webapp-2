@@ -42,7 +42,7 @@ export default function MainPage() {
             </div>
           </div>
         </div>
-        <div className=" relative">
+        <div className=" relative z-10">
           <div>
             <WaterEdgeAnimation speed={2} />
           </div>

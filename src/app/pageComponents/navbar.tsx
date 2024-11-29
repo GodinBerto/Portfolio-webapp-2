@@ -71,8 +71,9 @@ export default function MainNavbar() {
               <input
                 type="text"
                 placeholder="Search"
-                className="flex-1 bg-transparent outline-none dark:bg-transparent text-sm px-2 border-none focus:outline-none focus:border-none"
+                className="flex-1 bg-transparent outline-none border-none focus:outline-none focus:ring-0 dark:bg-transparent text-sm px-2"
               />
+
               <button className="">
                 <Search className="" />
               </button>

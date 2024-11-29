@@ -25,7 +25,7 @@ export default function Themes({ closeThemes }: any) {
 
   return (
     <div
-      className={`fixed top-20 right-0 bg-white dark:bg-gray-900 shadow-lg p-6 rounded-l-lg transform transition-transform duration-300 w-[400px] dark:text-gray-300 ${
+      className={`fixed top-20 right-0 bg-white dark:bg-gray-900 shadow-lg p-6 rounded-l-lg transform transition-transform duration-300 w-[400px] dark:text-gray-300 z-20 ${
         isVisible ? "translate-x-0" : "translate-x-full"
       }`}
     >
