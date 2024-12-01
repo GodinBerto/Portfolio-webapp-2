@@ -2,12 +2,15 @@
 
 import WaterEdgeAnimation from "@/app/animations/waterEdgeAnimation";
 import PageContainer from "@/app/pageComponents/pageContainer";
+import Button1 from "@/components/libraryComponent/buttons/button1";
+import Button2 from "@/components/libraryComponent/buttons/button2";
+import Calendar from "@/components/libraryComponent/calender/calender1";
 
 export default function MainPage() {
   return (
     <PageContainer>
       <div className="w-screen h-screen flex justify-center items-center flex-col gap-20">
-        <div className="flex flex-wrap gap-10">
+        <div className="flex flex-wrap gap-32">
           <div className="w-[400px] flex flex-col">
             <div className="flex flex-col gap-4 dark:text-white">
               <h1 className="font-semibold text-sm text-green-600">
@@ -34,10 +37,12 @@ export default function MainPage() {
               </div>
             </div>
           </div>
-          <div className="min-w-[500px] dark:text-white">
+          <div className="min-w-[700px] dark:text-white">
             <div>
-              <div>
-                <button>Button</button>
+              <div className="flex gap-3">
+                <Button1 />
+                <Button2 />
+                <Calendar />
               </div>
             </div>
           </div>
