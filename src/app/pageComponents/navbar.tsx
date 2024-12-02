@@ -29,7 +29,7 @@ export default function MainNavbar() {
   return (
     <>
       <div
-        className={`p-3 shadow-md backdrop-blur-md dark:text-white dark:border-b-[1px] dark:border-gray-700 ${
+        className={`p-3 shadow-md backdrop-blur-md dark:text-white dark:border-b-[1px] dark:border-gray-700 z-20 ${
           isScrolled ? "fixed top-0" : "relative"
         } w-screen bg-white dark:bg-semiblack transition-all duration-300 px-[20rem]`}
       >

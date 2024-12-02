@@ -1,5 +1,6 @@
 "use client";
 
+import Rain from "@/app/animations/rain";
 import WaterEdgeAnimation from "@/app/animations/waterEdgeAnimation";
 import PageContainer from "@/app/pageComponents/pageContainer";
 import Button1 from "@/components/libraryComponent/buttons/button1";
@@ -38,13 +39,7 @@ export default function MainPage() {
             </div>
           </div>
           <div className="min-w-[700px] dark:text-white">
-            <div>
-              <div className="flex gap-3">
-                <Button1 />
-                <Button2 />
-                <Calendar />
-              </div>
-            </div>
+            <Rain />
           </div>
         </div>
         <div className=" relative z-10">
