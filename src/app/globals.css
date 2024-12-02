@@ -9,30 +9,3 @@ html {
 body {
   transition: background-color 300ms ease, color 300ms ease;
 }
-
-.rain-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-
-  overflow: hidden;
-}
-
-.raindrop {
-  position: absolute;
-  top: -10%; /* Start above the container */
-  background: #138d13; /* Green color for the raindrop */
-  border-radius: 50%; /* Rounded edges for drop-like appearance */
-  animation: fall linear infinite;
-}
-
-@keyframes fall {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(110vh); /* Extend beyond the container */
-    opacity: 0.5;
-  }
-}

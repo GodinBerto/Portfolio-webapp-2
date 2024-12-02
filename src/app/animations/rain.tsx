@@ -1,16 +1,37 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import style from "../styles/rain.module.css";
 
 const Rain = () => {
-  useEffect(() => {
-    const container = document.querySelector(".rain-container");
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
 
+  useEffect(() => {
+    // Function to check screen size
+    const updateScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1240); // Large screen breakpoint
+    };
+
+    // Initial check
+    updateScreenSize();
+
+    // Add event listener for resize
+    window.addEventListener("resize", updateScreenSize);
+
+    return () => {
+      window.removeEventListener("resize", updateScreenSize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isLargeScreen) return; // Do not run animation if not on large screens
+
+    const container = document.querySelector(`.${style.rainContainer}`);
     if (!container) return;
 
     const createRainDrop = () => {
       const drop = document.createElement("div");
-      drop.classList.add("raindrop");
+      drop.classList.add(style.raindrop); // Use the CSS module class
       drop.style.left = `${Math.random() * 100}%`;
       drop.style.animationDuration = `${Math.random() * 2 + 1}s`; // Random fall duration
       drop.style.width = `${Math.random() * 1 + 2}px`; // Random width
@@ -19,18 +40,22 @@ const Rain = () => {
 
       // Remove drop after animation ends
       setTimeout(() => {
-        container.removeChild(drop);
+        if (container && container.contains(drop)) {
+          container.removeChild(drop);
+        }
       }, 3000);
     };
 
     const interval = setInterval(createRainDrop, 100);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isLargeScreen]);
 
-  return (
-    <div className="rain-container relative w-full h-full overflow-hidden z-10"></div>
-  );
+  return isLargeScreen ? (
+    <div
+      className={`${style.rainContainer} relative w-full h-full overflow-hidden z-10`}
+    ></div>
+  ) : null; // Render nothing if not a large screen
 };
 
 export default Rain;
