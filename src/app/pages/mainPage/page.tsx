@@ -10,8 +10,8 @@ import Calendar from "@/components/libraryComponent/calender/calender1";
 export default function MainPage() {
   return (
     <PageContainer>
-      <div className="w-screen h-screen flex justify-center items-center flex-col gap-20">
-        <div className="flex flex-wrap gap-32">
+      <div className="h-full mt-10 flex justify-center items-center flex-col gap-20">
+        <div className="w-full flex flex-wrap md:gap-32 justify-center px-3 md:px-0">
           <div className="w-[400px] flex flex-col">
             <div className="flex flex-col gap-4 dark:text-white">
               <h1 className="font-semibold text-sm text-green-600">
@@ -38,11 +38,11 @@ export default function MainPage() {
               </div>
             </div>
           </div>
-          <div className="min-w-[700px] dark:text-white">
+          <div className="min-w-[700px] dark:text-white ">
             <Rain />
           </div>
         </div>
-        <div className=" relative z-10">
+        <div className=" relative z-10 h-[300px] w-screen">
           <div>
             <WaterEdgeAnimation speed={2} />
           </div>

@@ -9,7 +9,7 @@ export default function PageContainer({ children }: any) {
         <div>
           <MainNavbar />
         </div>
-        {children}
+        <div className="">{children}</div>
         <div>
           <Footer />
         </div>

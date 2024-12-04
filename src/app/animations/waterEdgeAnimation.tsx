@@ -70,7 +70,7 @@ const WaterEdgeAnimation: React.FC<WaterEdgeAnimationProps> = ({ speed }) => {
     };
   }, [speed]);
 
-  return <canvas ref={canvasRef} className="w-full" />;
+  return <canvas ref={canvasRef} className="w-screen" />;
 };
 
 export default WaterEdgeAnimation;
