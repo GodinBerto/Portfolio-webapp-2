@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { DarkModeProvider } from "./context/darkModeContext";
+import Providers from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +22,7 @@ export default function RootLayout({
           (inter.className, `dark:bg-semiblack transition-colors duration-300`)
         }
       >
-        <DarkModeProvider>{children}</DarkModeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

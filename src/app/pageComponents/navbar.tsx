@@ -5,12 +5,23 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { useDarkMode } from "../context/darkModeContext";
 import Themes from "../themes/page";
+import { useTheme } from "../themes/themeContext/themeContext";
 
 export default function MainNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showThemes, setShowThemes] = useState(false); // State to toggle Themes visibility
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State for mobile menu
   const { darkMode, toggleDarkMode } = useDarkMode(); // Access global darkMode state
+  const { theme } = useTheme();
+
+  const themeClasses: { [key: string]: string } = {
+    red: "text-red-600",
+    yellow: "text-yellow-600",
+    blue: "text-blue-600",
+    green: "text-green-600",
+  };
+
+  const currentTheme = themeClasses[theme] || themeClasses["blue"];
 
   useEffect(() => {
     // Handle scrolling state
@@ -37,7 +48,7 @@ export default function MainNavbar() {
         <div className="flex justify-between items-center px-4 lg:px-[10rem]">
           {/* Brand Section */}
           <div>
-            <h1 className="text-green-600">Berto&apos;Studio</h1>
+            <h1 className={`${currentTheme}`}>Berto&apos;Studio</h1>
           </div>
 
           {/* Desktop Links */}
