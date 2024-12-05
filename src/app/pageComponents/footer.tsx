@@ -2,15 +2,47 @@ import Link from "next/link";
 import Github from "../icons/github";
 import Linkedln from "../icons/linkdln";
 import Discord from "../icons/discord";
+import { useTheme } from "../themes/themeContext/themeContext";
 
 export default function Footer() {
+  const { theme } = useTheme();
+
+  const themeClasses: {
+    [key: string]: { button1: string; text: string };
+  } = {
+    red: {
+      button1: "bg-red-600  hover:bg-red-700",
+      text: "text-red-600",
+    },
+    yellow: {
+      button1: "bg-yellow-600  hover:bg-yellow-700",
+
+      text: "text-yellow-600",
+    },
+    blue: {
+      button1: "bg-blue-600  hover:bg-blue-700",
+
+      text: "text-blue-600",
+    },
+    green: {
+      button1: "bg-green-600  hover:bg-green-700",
+
+      text: "text-green-600",
+    },
+  };
+
+  // Ensure to default to blue theme if theme is not valid or undefined
+  const currentTheme = themeClasses[theme] || themeClasses["blue"];
+  console.log("Current Theme:", theme);
+
+  console.log("text from me: ", currentTheme.text);
   return (
     <footer className="p-6 dark:text-white border-t-[1px] dark:border-gray-700 flex flex-col gap-6 items-center">
       {/* Main container */}
       <div className="flex flex-col lg:flex-row justify-between items-start w-full max-w-7xl gap-10 lg:gap-20">
         {/* Left section */}
         <div className="flex flex-col gap-7 w-full lg:w-[40%]">
-          <h1 className="font-semibold text-sm text-green-600">
+          <h1 className={`ont-semibold text-sm ${currentTheme.text}`}>
             Berto&apos;Studio
           </h1>
           <div>
@@ -32,7 +64,7 @@ export default function Footer() {
             />
             <button
               type="submit"
-              className="bg-green-600 h-10 px-6 rounded-md text-white flex items-center justify-center hover:bg-green-700"
+              className={`${currentTheme.button1} h-10 px-6 rounded-md text-white flex items-center justify-center `}
             >
               Subscribe
             </button>

@@ -2,9 +2,26 @@
 
 import React, { useEffect, useState } from "react";
 import style from "../styles/rain.module.css";
+import { useTheme } from "../themes/themeContext/themeContext";
 
 const Rain = () => {
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const { theme } = useTheme();
+
+  // Map themes to Tailwind classes
+  const themeColors: { [key: string]: { top: string; bottom: string } } = {
+    red: { top: "rgba(200, 4, 4, 1)", bottom: "rgba(200, 4, 4, 0)" },
+    yellow: { top: "rgba(220, 202, 0, 1)", bottom: "rgba(220, 202, 0, 0)" },
+    blue: { top: "rgba(30, 58, 138, 1)", bottom: "rgba(30, 58, 138, 0)" },
+    green: { top: "rgba(0, 191, 86, 1)", bottom: "rgba(0, 191, 86, 0)" },
+    light: {
+      top: "rgba(255, 255, 255, 1)",
+      bottom: "rgba(255, 255, 255, 0)",
+    },
+    dark: { top: "rgba(26, 26, 26, 1)", bottom: "rgba(26, 26, 26, 0)" },
+  };
+
+  const currentColors = themeColors[theme] || themeColors["blue"];
 
   useEffect(() => {
     // Function to check screen size
@@ -36,6 +53,8 @@ const Rain = () => {
       drop.style.animationDuration = `${Math.random() * 2 + 1}s`; // Random fall duration
       drop.style.width = `${Math.random() * 1 + 2}px`; // Random width
       drop.style.height = `${Math.random() * 10 + 10}px`; // Random height
+      drop.style.background = currentColors.top; // Use the current theme's color for the raindrop
+
       container.appendChild(drop);
 
       // Remove drop after animation ends
@@ -49,7 +68,7 @@ const Rain = () => {
     const interval = setInterval(createRainDrop, 100);
 
     return () => clearInterval(interval);
-  }, [isLargeScreen]);
+  }, [isLargeScreen, currentColors]);
 
   return isLargeScreen ? (
     <div

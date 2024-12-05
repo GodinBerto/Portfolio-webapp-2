@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 // Define the context type
 interface DarkModeContextType {
@@ -15,16 +21,35 @@ const DarkModeContext = createContext<DarkModeContextType | undefined>(
 export const DarkModeProvider = ({ children }: { children: ReactNode }) => {
   const [darkMode, setDarkMode] = useState(false);
 
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
+  // Use useEffect to ensure `localStorage` is accessed only after mounting
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem("dark") === "true";
+    setDarkMode(savedDarkMode); // Set the state with the saved dark mode preference
 
-    // Update the `<html>` element to add/remove the "dark" class
+    // Update the <html> element based on the darkMode state
     const html = document.documentElement;
-    if (!darkMode) {
+    if (savedDarkMode) {
       html.classList.add("dark");
     } else {
       html.classList.remove("dark");
     }
+  }, []); // Run this effect only once after the initial render
+
+  // Update localStorage and the HTML class when darkMode changes
+  useEffect(() => {
+    const html = document.documentElement;
+    if (darkMode) {
+      html.classList.add("dark");
+      localStorage.setItem("dark", "true"); // Save dark mode preference
+    } else {
+      html.classList.remove("dark");
+      localStorage.setItem("dark", "false"); // Save light mode preference
+    }
+  }, [darkMode]); // Runs whenever `darkMode` changes
+
+  // Function to toggle dark mode
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => !prev);
   };
 
   return (
