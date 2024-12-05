@@ -3,7 +3,11 @@ import { ArrowRightFromLine } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useTheme } from "./themeContext/themeContext";
 
-export default function Themes({ closeThemes }: { closeThemes: any }) {
+interface ThemesProps {
+  closeThemes: () => void; // Define the type for closeThemes explicitly
+}
+
+export default function Themes({ closeThemes }: ThemesProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { changeTheme } = useTheme();
 
