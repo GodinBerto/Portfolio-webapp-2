@@ -19,17 +19,18 @@ const ThemeContext = createContext<ThemeProps>({
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<string>("green");
 
+  // On initial load, check if there's a saved theme in localStorage
   useEffect(() => {
     const currentTheme = localStorage.getItem("theme");
     if (currentTheme) {
-      setTheme(currentTheme);
+      setTheme(currentTheme); // Set theme from localStorage
     }
-    setTheme(theme);
-  }, []);
+  }, []); // This runs only once when the component mounts
 
+  // Whenever the theme changes, update the localStorage
   useEffect(() => {
     localStorage.setItem("theme", theme);
-  }, [theme]);
+  }, [theme]); // Runs whenever `theme` changes
 
   const changeTheme = (newTheme: string) => {
     setTheme(newTheme);

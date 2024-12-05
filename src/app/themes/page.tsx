@@ -35,7 +35,7 @@ export default function Themes({ closeThemes }: ThemesProps) {
       }`}
     >
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold dark:text-white">Themes</h2>
+        k<h2 className="text-xl font-semibold dark:text-white">Themes</h2>
         <button
           onClick={handleClose}
           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
