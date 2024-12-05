@@ -18,14 +18,14 @@ export default function Home() {
       button2: "border-red-600 text-red-600",
     },
     yellow: {
-      button1: "bg-yellow-600 border-yellow-600",
-      button2: "border-yellow-600 text-yellow-600",
-      text: "text-yellow-600",
+      button1: "bg-yellow-500 border-yellow-s00",
+      button2: "border-yellow-500 text-yellow-500",
+      text: "text-yellow-500",
     },
     blue: {
-      button1: "bg-blue-600 border-blue-600",
-      button2: "border-blue-600 text-blue-600",
-      text: "text-blue-600",
+      button1: "bg-blue-500 border-blue-500",
+      button2: "border-blue-500 text-blue-500",
+      text: "text-blue-500",
     },
     green: {
       button1: "bg-green-600 border-green-600",
@@ -59,7 +59,7 @@ export default function Home() {
               Whether you need sleek navigation menus, dynamic content sections,
               or feature-packed widgets, we&apos;ve got you covered.
             </p>
-            <div className="flex gap-6">
+            <div className="flex gap-6 flex-wrap">
               <Button1>Get Started</Button1>
 
               <Button2>View Components</Button2>

@@ -16,8 +16,8 @@ export default function MainNavbar() {
 
   const themeClasses: { [key: string]: string } = {
     red: "text-red-600",
-    yellow: "text-yellow-600",
-    blue: "text-blue-600",
+    yellow: "text-yellow-500",
+    blue: "text-blue-500",
     green: "text-green-600",
   };
 

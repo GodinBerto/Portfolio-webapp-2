@@ -8,25 +8,26 @@ export default function Footer() {
   const { theme } = useTheme();
 
   const themeClasses: {
-    [key: string]: { button1: string; text: string };
+    [key: string]: { button1: string; text: string; textHover: string };
   } = {
     red: {
       button1: "bg-red-600  hover:bg-red-700",
+      textHover: "hover:text-red-600",
       text: "text-red-600",
     },
     yellow: {
-      button1: "bg-yellow-600  hover:bg-yellow-700",
-
-      text: "text-yellow-600",
+      button1: "bg-yellow-500  hover:bg-yellow-600",
+      textHover: "hover:text-yellow-500",
+      text: "text-yellow-500",
     },
     blue: {
-      button1: "bg-blue-600  hover:bg-blue-700",
-
-      text: "text-blue-600",
+      button1: "bg-blue-500  hover:bg-blue-600",
+      textHover: "hover:text-blue-600",
+      text: "text-blue-500",
     },
     green: {
       button1: "bg-green-600  hover:bg-green-700",
-
+      textHover: "hover:text-green-600",
       text: "text-green-600",
     },
   };
@@ -92,19 +93,19 @@ export default function Footer() {
             <div className="flex flex-col gap-1">
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Templates
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Components
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Customization
               </Link>
@@ -119,25 +120,25 @@ export default function Footer() {
             <div className="flex flex-col gap-1">
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Documentation
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Prices
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Blog
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Road Map
               </Link>
@@ -152,31 +153,31 @@ export default function Footer() {
             <div className="flex flex-col gap-1">
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 About Me
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Vision
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Careers
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Contact Me
               </Link>
               <Link
                 href="#"
-                className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-600"
+                className={`text-gray-600 dark:text-gray-400 ${currentTheme.textHover}`}
               >
                 Support Me
               </Link>

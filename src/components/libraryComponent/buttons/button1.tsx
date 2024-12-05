@@ -7,12 +7,10 @@ export default function Button1({ children }: { children: string }) {
 
   // Map themes to Tailwind classes
   const themeClasses: { [key: string]: string } = {
-    red: "bg-[#C80404] border-[#C80404]",
-    yellow: "bg-[#DCCA00] border-[#DCCA00]",
-    blue: "bg-[#1e3a8a] border-[#1e3a8a]",
-    green: "bg-[#00BF56] border-[#00BF56]",
-    light: "bg-[#ffffff] border-[#ffffff] text-black",
-    dark: "bg-[#1a1a1a] border-[#1a1a1a]",
+    red: "bg-red-600 border-red-600",
+    yellow: "bg-yellow-500 border-yellow-500",
+    blue: "bg-blue-500 border-blue-500",
+    green: "bg-green-600 border-green-600",
   };
 
   // Determine the current class string
