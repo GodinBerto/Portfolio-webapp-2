@@ -9,3 +9,27 @@ html {
 body {
   transition: background-color 300ms ease, color 300ms ease;
 }
+
+/* Custom pre and code styling */
+pre {
+  padding: 16px;
+  border-radius: 8px;
+  overflow: auto;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+code {
+  font-family: "Courier New", Courier, monospace !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important; /* Key rule to remove text shadows */
+}
+
+.token {
+  text-shadow: none !important; /* Remove shadow from Prism token styles */
+  color: blue;
+  background-color: transparent !important;
+}

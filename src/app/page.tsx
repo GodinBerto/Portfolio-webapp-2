@@ -7,9 +7,13 @@ import { useTheme } from "./themes/themeContext/themeContext";
 import Button2 from "@/components/libraryComponent/buttons/button2";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import PrismLoader from "./pageComponents/prismLoader";
+import { ButtonString1 } from "./stringText/compoonentString";
 
 export default function Home() {
   const { theme } = useTheme();
+  const [activeButton, setActiveButton] = useState("");
 
   const themeClasses: {
     [key: string]: {
@@ -50,6 +54,29 @@ export default function Home() {
   console.log("Current Theme:", theme);
 
   console.log("text from me: ", currentTheme.text);
+
+  const ButtonClicked = (button: string) => {
+    setActiveButton(button);
+  };
+
+  const codeString = `
+import React from "react";
+
+const HelloWorld = () => {
+  return (
+    <div>Hello, World!
+      <p className="dark:text-gray-400 text-gray-600">
+          We specialize in providing high-quality components tailored to
+          make your web development faster, easier, and more stylish.
+          Whether you need sleek navigation menus, dynamic content sections,
+          or feature-packed widgets, we&apos;ve got you covered.
+      </p>
+    </div>;
+  )
+};
+
+export default HelloWorld;
+`;
 
   return (
     <div className="h-full mt-10 flex justify-center items-center flex-col gap-20">
@@ -92,15 +119,16 @@ export default function Home() {
           <WaterEdgeAnimation speed={1} />
         </div>
       </div>
-      <div className="flex w-full my-5 justify-center dark:text-white">
-        <div className="flex gap-4 flex-wrap ">
-          <div className="w-[330px]">
+      <div className="flex w-full my-5 justify-center dark:text-white px-3">
+        <div className="flex flex-wrap gap-6 justify-center">
+          {/* Left Column */}
+          <div className="w-full sm:w-[320px] lg:w-[350px]">
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2 ">
+              <div className="flex flex-col gap-2">
                 <h1 className={`font-semibold text-sm ${currentTheme.text}`}>
                   Components Library
                 </h1>
-                <h2 className="font-bold text-3xl">
+                <h2 className="font-bold text-2xl sm:text-3xl">
                   Effortless{" "}
                   <span className={`${currentTheme.text}`}>Reusable</span>{" "}
                   Components for Everyone
@@ -111,24 +139,39 @@ export default function Home() {
                 </p>
               </div>
               <div className="w-full p-3 rounded-lg border-[1.5px] border-gray-100 dark:border-gray-700 dark:bg-white/5 bg-black/5 backdrop-blur-lg shadow-md">
-                <div className="flex flex-col items-center ">
+                <div className="flex flex-col items-center gap-2">
                   <Link
-                    href={"#"}
-                    className={`p-2 w-full flex justify-center ${currentTheme.buttonHover} rounded-md hover:text-white`}
+                    href={"#ComponentContainer"}
+                    onClick={() => ButtonClicked("Button")}
+                    className={`p-2 w-full flex justify-center ${
+                      activeButton === "Button"
+                        ? currentTheme.button1
+                        : currentTheme.buttonHover
+                    } rounded-md hover:text-white`}
                   >
                     Buttons
                   </Link>
                   <div className="w-[90%] dark:bg-gray-700 h-[1px] bg-gray-300"></div>
                   <Link
-                    href={"#"}
-                    className={`p-2 w-full flex justify-center ${currentTheme.buttonHover} rounded-md hover:text-white`}
+                    href={"#ComponentContainer"}
+                    onClick={() => ButtonClicked("Forms")}
+                    className={`p-2 w-full flex justify-center ${
+                      activeButton === "Forms"
+                        ? currentTheme.button1
+                        : currentTheme.buttonHover
+                    } rounded-md hover:text-white`}
                   >
                     Forms
                   </Link>
                   <div className="w-[90%] dark:bg-gray-700 h-[1px] bg-gray-300"></div>
                   <Link
-                    href={"#"}
-                    className={`p-2 w-full flex justify-center ${currentTheme.buttonHover} rounded-md hover:text-white`}
+                    href={"#ComponentContainer"}
+                    onClick={() => ButtonClicked("Cards")}
+                    className={`p-2 w-full flex justify-center ${
+                      activeButton === "Cards"
+                        ? currentTheme.button1
+                        : currentTheme.buttonHover
+                    } rounded-md hover:text-white`}
                   >
                     Cards
                   </Link>
@@ -136,8 +179,9 @@ export default function Home() {
                   <Link
                     href={"#"}
                     className={`p-2 w-full flex justify-center ${currentTheme.buttonHover} rounded-md hover:text-white gap-5`}
+                    onClick={() => ButtonClicked("")}
                   >
-                    View more componenets{" "}
+                    View more components{" "}
                     <span>
                       <ArrowRight />
                     </span>
@@ -147,7 +191,20 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="bg-gray"></div>
+          {/* Right Column */}
+          <div
+            className="w-[320px] lg:w-[800px] max-h-[500px] border-[1.5px] border-gray-100 dark:border-gray-700 rounded-md p-6 flex gap-6 flex-col overflow-auto"
+            id="ComponentContainer"
+          >
+            <div className="w-full flex justify-center">
+              <div className="flex gap-4 sm:gap-10">
+                <Button1 className="w-32 sm:w-40">Button1</Button1>
+                <Button2>Button2</Button2>
+              </div>
+            </div>
+            <div className="w-[100%] dark:bg-gray-700 h-[1px] bg-gray-100"></div>
+            <PrismLoader code={ButtonString1} />
+          </div>
         </div>
       </div>
     </div>

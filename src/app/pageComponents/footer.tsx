@@ -12,22 +12,22 @@ export default function Footer() {
   } = {
     red: {
       button1: "bg-red-600  hover:bg-red-700",
-      textHover: "hover:text-red-600",
+      textHover: "hover:text-red-600 dark:hover:text-red-600",
       text: "text-red-600",
     },
     yellow: {
       button1: "bg-yellow-500  hover:bg-yellow-600",
-      textHover: "hover:text-yellow-500",
+      textHover: "hover:text-yellow-500 dark:hover:text-yellow-500",
       text: "text-yellow-500",
     },
     blue: {
       button1: "bg-blue-500  hover:bg-blue-600",
-      textHover: "hover:text-blue-600",
+      textHover: "hover:text-blue-600 dark:hover:text-blue-600",
       text: "text-blue-500",
     },
     green: {
       button1: "bg-green-600  hover:bg-green-700",
-      textHover: "hover:text-green-600",
+      textHover: "hover:text-green-600 dark:hover:text-green-600",
       text: "text-green-600",
     },
   };

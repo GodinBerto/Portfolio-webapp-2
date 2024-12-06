@@ -13,12 +13,14 @@
     "@tailwindcss/forms": "^0.5.9",
     "lucide-react": "^0.460.0",
     "next": "^15.0.2",
+    "prismjs": "^1.29.0",
     "punycode": "^2.3.1",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/prismjs": "^1.26.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10",
