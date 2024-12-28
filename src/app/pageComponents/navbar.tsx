@@ -41,11 +41,11 @@ export default function MainNavbar() {
   return (
     <>
       <div
-        className={`p-3 fixed top-0 w-full bg-white/80 dark:bg-semiblack/80 backdrop-blur-md dark:text-white dark:border-b-[1px] dark:border-gray-700/50 z-20 transform transition-all duration-300 ease-in-out ${
+        className={`p-3 fixed top-0 w-full bg-white dark:bg-semiblack backdrop-blur-md dark:text-white border-b-[1px] dark:border-gray-700 z-20 transform transition-all duration-300 ease-in-out ${
           isScrolled ? "shadow-lg translate-y-0" : "translate-y-0 shadow-none"
         }`}
       >
-        <div className="flex justify-between items-center px-4 lg:px-[10rem] transition-all duration-300 ease-in-out">
+        <div className="flex justify-between items-center px-4 lg:px-[10rem]">
           {/* Brand Section */}
           <div className="transform transition-all duration-300 hover:scale-105">
             <h1 className={`${currentTheme}`}>Berto&apos;Studio</h1>
