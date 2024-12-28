@@ -79,7 +79,7 @@ export default HelloWorld;
 `;
 
   return (
-    <div className="h-full mt-10 flex justify-center items-center flex-col gap-20">
+    <div className="h-full mt-[100px] flex justify-center items-center flex-col gap-20">
       <div className="w-full flex flex-wrap md:gap-32 justify-center px-3 md:px-0">
         <div className="w-[400px] flex flex-col">
           <div className="flex flex-col gap-4 dark:text-white">
@@ -104,7 +104,7 @@ export default HelloWorld;
             </div>
           </div>
         </div>
-        <div className="min-w-[700px] dark:text-white ">
+        <div className="min-w-[600px] dark:text-white hidden xl:block">
           <Rain />
         </div>
       </div>
@@ -196,8 +196,8 @@ export default HelloWorld;
             className="w-[320px] lg:w-[800px] max-h-[500px] border-[1.5px] border-gray-100 dark:border-gray-700 rounded-md p-6 flex gap-6 flex-col overflow-auto"
             id="ComponentContainer"
           >
-            <div className="w-full flex justify-center">
-              <div className="flex gap-4 sm:gap-10">
+            <div className="w-full flex justify-center relative">
+              <div className="flex gap-4 sm:gap-10 absolute top-0">
                 <Button1 className="w-32 sm:w-40">Button1</Button1>
                 <Button2>Button2</Button2>
               </div>

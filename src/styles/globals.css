@@ -1,0 +1,10 @@
+/* Global styles will be defined here */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Add your CSS variables here */
+}
+
+/* Add your global styles here */

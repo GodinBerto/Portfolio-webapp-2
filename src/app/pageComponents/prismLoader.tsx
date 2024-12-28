@@ -1,35 +1,49 @@
 import { useEffect, useState } from "react";
 import Prism from "prismjs";
-import "prismjs/components/prism-typescript"; // Import TypeScript syntax
-import "prismjs/themes/prism.css"; // Use a minimal theme
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-jsx";
+import "prismjs/components/prism-tsx";
+import "prismjs/themes/prism-tomorrow.css";
+import { Copy, Check } from "lucide-react";
 
 const PrismLoader = ({ code }: { code: string }) => {
   const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
-    Prism.highlightAll(); // Highlight all <code> elements on the page
-  }, []);
+    Prism.highlightAll();
+  }, [code]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code).then(
-      () => {
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000); // Reset after 2 seconds
-      },
-      () => alert("Failed to copy the code.")
-    );
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
   };
 
   return (
-    <div className="relative overflow-auto max-w-full">
+    <div className="relative group">
       <button
         onClick={handleCopy}
-        className="absolute top-2 right-2 bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 transition"
+        className="absolute top-3 right-3 p-2 rounded-md 
+                 bg-gray-700/50 hover:bg-gray-600 transition-all duration-200
+                 text-gray-300 hover:text-white
+                 opacity-0 group-hover:opacity-100 focus:opacity-100
+                 backdrop-blur-sm"
+        aria-label={copySuccess ? "Copied!" : "Copy code"}
       >
-        {copySuccess ? "Copied!" : "Copy"}
+        {copySuccess ? (
+          <Check className="w-4 h-4" />
+        ) : (
+          <Copy className="w-4 h-4" />
+        )}
       </button>
-      <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-auto max-w-full text-sm sm:text-base lg:text-lg">
-        <code className="language-typescript text-gray-700 dark:text-gray-200 break-words">
+      <pre className="!bg-gray-900/95 !p-4 rounded-lg overflow-hidden
+                    border border-gray-700/50 backdrop-blur-sm
+                    scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+        <code className="language-tsx text-sm font-mono">
           {code}
         </code>
       </pre>

@@ -41,13 +41,13 @@ export default function MainNavbar() {
   return (
     <>
       <div
-        className={`p-3 shadow-md backdrop-blur-md dark:text-white dark:border-b-[1px] dark:border-gray-700 z-20 ${
-          isScrolled ? "fixed top-0" : "relative"
-        } w-full bg-white dark:bg-semiblack transition-all duration-300`}
+        className={`p-3 fixed top-0 w-full bg-white/80 dark:bg-semiblack/80 backdrop-blur-md dark:text-white dark:border-b-[1px] dark:border-gray-700/50 z-20 transform transition-all duration-300 ease-in-out ${
+          isScrolled ? "shadow-lg translate-y-0" : "translate-y-0 shadow-none"
+        }`}
       >
-        <div className="flex justify-between items-center px-4 lg:px-[10rem]">
+        <div className="flex justify-between items-center px-4 lg:px-[10rem] transition-all duration-300 ease-in-out">
           {/* Brand Section */}
-          <div>
+          <div className="transform transition-all duration-300 hover:scale-105">
             <h1 className={`${currentTheme}`}>Berto&apos;Studio</h1>
           </div>
 
@@ -55,25 +55,25 @@ export default function MainNavbar() {
           <ul className="hidden lg:flex gap-4">
             <Link
               href={"#"}
-              className="text-sm hover:dark:bg-gray-800 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-white hover:border-semiblack dark:border-semiblack"
+              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
             >
               Docs
             </Link>
             <Link
               href={"#"}
-              className="text-sm hover:dark:bg-gray-800 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-white hover:border-semiblack dark:border-semiblack"
+              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
             >
               Product
             </Link>
             <Link
               href={"#"}
-              className="text-sm hover:dark:bg-gray-800 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-white hover:border-semiblack dark:border-semiblack"
+              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
             >
               Pricing
             </Link>
             <Link
               href={"#"}
-              className="text-sm hover:dark:bg-gray-800 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-white hover:border-semiblack dark:border-semiblack"
+              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
             >
               Portfolio
             </Link>
@@ -82,13 +82,13 @@ export default function MainNavbar() {
           {/* Action Section */}
           <div className="flex gap-5 items-center dark:text-gray-400">
             {/* Search Bar */}
-            <div className="hidden lg:flex justify-center items-center rounded-md dark:bg-searchColor dark:border-gray-600 border-searchColor border-[2px] px-2 h-10 w-64">
+            <div className="hidden lg:flex justify-center items-center rounded-md dark:bg-searchColor/80 dark:border-gray-600/50 border-searchColor border-[2px] px-2 h-10 w-64 transition-all duration-300 focus-within:border-current">
               <input
                 type="text"
                 placeholder="Search"
-                className="flex-1 bg-transparent outline-none border-none focus:outline-none focus:ring-0 dark:bg-transparent text-sm px-2"
+                className="flex-1 bg-transparent outline-none border-none focus:outline-none focus:ring-0 dark:bg-transparent text-sm px-2 transition-colors duration-300"
               />
-              <button>
+              <button className="transition-transform duration-200 hover:scale-110">
                 <Search />
               </button>
             </div>
@@ -96,7 +96,7 @@ export default function MainNavbar() {
             {/* Theme Toggle */}
             <SlidersHorizontal
               onClick={() => setShowThemes((prev) => !prev)}
-              className="cursor-pointer"
+              className="cursor-pointer transition-transform duration-200 hover:scale-110"
             />
 
             {/* Dark Mode Toggle */}
@@ -104,59 +104,61 @@ export default function MainNavbar() {
               {darkMode ? (
                 <Sun
                   onClick={toggleDarkMode}
-                  className="cursor-pointer text-yellow-500 hover:text-yellow-600 transition-transform duration-300"
+                  className="cursor-pointer text-yellow-500 hover:text-yellow-600 transition-all duration-300 hover:rotate-90 hover:scale-110"
                 />
               ) : (
                 <Moon
                   onClick={toggleDarkMode}
-                  className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 transition-transform duration-300"
+                  className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 transition-all duration-300 hover:-rotate-90 hover:scale-110"
                 />
               )}
             </div>
 
             {/* Mobile Menu Toggle */}
             <button
-              className="lg:hidden flex items-center text-gray-700 dark:text-gray-300"
+              className="lg:hidden flex items-center text-gray-700 dark:text-gray-300 transition-colors duration-200"
               onClick={() => setIsMenuOpen((prev) => !prev)}
             >
               <div className="space-y-1">
-                <span className="block h-[3px] w-6 bg-current"></span>
-                <span className="block h-[3px] w-6 bg-current"></span>
-                <span className="block h-[3px] w-6 bg-current"></span>
+                <span className={`block h-[3px] w-6 bg-current transform transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                <span className={`block h-[3px] w-6 bg-current transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
+                <span className={`block h-[3px] w-6 bg-current transform transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
               </div>
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden flex flex-col mt-4 space-y-2 px-4">
-            <Link
-              href={"#"}
-              className="text-sm hover:dark:bg-gray-800 p-[5px] rounded-md"
-            >
-              Docs
-            </Link>
-            <Link
-              href={"#"}
-              className="text-sm hover:dark:bg-gray-800 p-[5px] rounded-md"
-            >
-              Product
-            </Link>
-            <Link
-              href={"#"}
-              className="text-sm hover:dark:bg-gray-800 p-[5px] rounded-md"
-            >
-              Pricing
-            </Link>
-            <Link
-              href={"#"}
-              className="text-sm hover:dark:bg-gray-800 p-[5px] rounded-md"
-            >
-              About Us
-            </Link>
-          </div>
-        )}
+        <div 
+          className={`lg:hidden flex flex-col mt-4 space-y-2 px-4 overflow-hidden transition-all duration-300 ease-in-out ${
+            isMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <Link
+            href={"#"}
+            className="text-sm hover:dark:bg-gray-800/80 p-[5px] rounded-md transition-all duration-200 hover:translate-x-2"
+          >
+            Docs
+          </Link>
+          <Link
+            href={"#"}
+            className="text-sm hover:dark:bg-gray-800/80 p-[5px] rounded-md transition-all duration-200 hover:translate-x-2"
+          >
+            Product
+          </Link>
+          <Link
+            href={"#"}
+            className="text-sm hover:dark:bg-gray-800/80 p-[5px] rounded-md transition-all duration-200 hover:translate-x-2"
+          >
+            Pricing
+          </Link>
+          <Link
+            href={"#"}
+            className="text-sm hover:dark:bg-gray-800/80 p-[5px] rounded-md transition-all duration-200 hover:translate-x-2"
+          >
+            About Us
+          </Link>
+        </div>
       </div>
 
       {/* Render Themes page conditionally */}
