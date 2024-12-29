@@ -10,10 +10,12 @@ import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import PrismLoader from "./pageComponents/prismLoader";
 import { ButtonString1 } from "./stringText/compoonentString";
+import { ButtonString2 } from "./stringText/compoonentString";
 
 export default function Home() {
   const { theme } = useTheme();
   const [activeButton, setActiveButton] = useState("");
+  const [codeString, setCodeString] = useState(ButtonString1);
 
   const themeClasses: {
     [key: string]: {
@@ -57,26 +59,14 @@ export default function Home() {
 
   const ButtonClicked = (button: string) => {
     setActiveButton(button);
+    if (button === "Button1") {
+      setCodeString(ButtonString1);
+    } else if (button === "Button2") {
+      setCodeString(ButtonString2);
+    } else {
+      setCodeString("no components found");
+    }
   };
-
-  const codeString = `
-import React from "react";
-
-const HelloWorld = () => {
-  return (
-    <div>Hello, World!
-      <p className="dark:text-gray-400 text-gray-600">
-          We specialize in providing high-quality components tailored to
-          make your web development faster, easier, and more stylish.
-          Whether you need sleek navigation menus, dynamic content sections,
-          or feature-packed widgets, we&apos;ve got you covered.
-      </p>
-    </div>;
-  )
-};
-
-export default HelloWorld;
-`;
 
   return (
     <div className="h-full mt-[100px] flex justify-center items-center flex-col gap-20">
@@ -142,9 +132,9 @@ export default HelloWorld;
                 <div className="flex flex-col items-center gap-2">
                   <Link
                     href={"#ComponentContainer"}
-                    onClick={() => ButtonClicked("Button")}
+                    onClick={() => ButtonClicked("Button1")}
                     className={`p-2 w-full flex justify-center ${
-                      activeButton === "Button"
+                      activeButton === "Button1"
                         ? currentTheme.button1
                         : currentTheme.buttonHover
                     } rounded-md hover:text-white`}
@@ -198,12 +188,11 @@ export default HelloWorld;
           >
             <div className="w-full flex justify-center relative">
               <div className="flex gap-4 sm:gap-10 absolute top-0">
-                <Button1 className="w-32 sm:w-40">Button1</Button1>
-                <Button2>Button2</Button2>
+                <Button1 onClick={() => ButtonClicked("Button1")} className="w-32 sm:w-40">Button1</Button1>
               </div>
             </div>
             <div className="w-[100%] dark:bg-gray-700 h-[1px] bg-gray-100"></div>
-            <PrismLoader code={ButtonString1} />
+            <PrismLoader code={codeString} />
           </div>
         </div>
       </div>

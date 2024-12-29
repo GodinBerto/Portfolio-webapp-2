@@ -1,6 +1,11 @@
 import { useTheme } from "@/app/themes/themeContext/themeContext";
 
-export default function Button2({ children }: { children: string }) {
+interface Types{
+  children: string;
+  onClick?: () => void
+}
+
+export default function Button2({ children, onClick }: Types) {
   const { theme } = useTheme();
 
   // Map themes to Tailwind classes
@@ -18,6 +23,7 @@ export default function Button2({ children }: { children: string }) {
   return (
     <button
       className={`py-2 px-6 rounded-md ${currentThemeClass} border-2 h-10 flex items-center transition-transform transform hover:scale-110`}
+      onClick={onClick}
     >
       {children}
     </button>

@@ -2,13 +2,17 @@
 import { useTheme } from "@/app/themes/themeContext/themeContext";
 import React, { ReactNode } from "react";
 
+interface Types {
+  children: string;
+  className?: string;
+  onClick?: () => void
+}
+
 export default function Button1({
   children,
   className,
-}: {
-  children: string;
-  className?: string;
-}) {
+  onClick
+}: Types) {
   const { theme } = useTheme();
 
   // Map themes to Tailwind classes
@@ -25,7 +29,8 @@ export default function Button1({
 
   return (
     <button
-      className={`py-2 px-6 text-white rounded-md border-2 h-10 flex items-center justify-center ${currentThemeClass} transition-transform transform hover:scale-110 ${className}`}
+      className={`py-2 px-6 text-white rounded-md border-2 h-10 flex items-center justify-center ${currentThemeClass} transition-transform transform hover:scale-110 ${className}`} 
+      onClick={onClick}
     >
       {children}
     </button>
