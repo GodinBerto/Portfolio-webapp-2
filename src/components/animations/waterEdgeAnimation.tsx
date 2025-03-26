@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { useTheme } from "../themes/themeContext/themeContext";
+import { useTheme } from "../../app/themes/themeContext/themeContext";
 
 interface WaterEdgeAnimationProps {
   speed: number; // Speed factor for the wave

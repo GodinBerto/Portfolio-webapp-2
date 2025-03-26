@@ -3,9 +3,9 @@
 import { Moon, Search, SlidersHorizontal, Sun } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { useDarkMode } from "../context/darkModeContext";
-import Themes from "../themes/page";
-import { useTheme } from "../themes/themeContext/themeContext";
+import { useDarkMode } from "../../context/darkModeContext";
+import Themes from "../../app/themes/page";
+import { useTheme } from "../../app/themes/themeContext/themeContext";
 
 export default function MainNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -120,18 +120,30 @@ export default function MainNavbar() {
               onClick={() => setIsMenuOpen((prev) => !prev)}
             >
               <div className="space-y-1">
-                <span className={`block h-[3px] w-6 bg-current transform transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-                <span className={`block h-[3px] w-6 bg-current transition-opacity duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
-                <span className={`block h-[3px] w-6 bg-current transform transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+                <span
+                  className={`block h-[3px] w-6 bg-current transform transition-all duration-300 ${
+                    isMenuOpen ? "rotate-45 translate-y-2" : ""
+                  }`}
+                ></span>
+                <span
+                  className={`block h-[3px] w-6 bg-current transition-opacity duration-300 ${
+                    isMenuOpen ? "opacity-0" : ""
+                  }`}
+                ></span>
+                <span
+                  className={`block h-[3px] w-6 bg-current transform transition-all duration-300 ${
+                    isMenuOpen ? "-rotate-45 -translate-y-2" : ""
+                  }`}
+                ></span>
               </div>
             </button>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        <div 
+        <div
           className={`lg:hidden flex flex-col mt-4 space-y-2 px-4 overflow-hidden transition-all duration-300 ease-in-out ${
-            isMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+            isMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
           <Link

@@ -1,7 +1,7 @@
 "use client";
 
-import { DarkModeProvider } from "./context/darkModeContext";
-import PageContainer from "./pageComponents/pageContainer";
+import { DarkModeProvider } from "../context/darkModeContext";
+import PageContainer from "../components/pageComponents/pageContainer";
 
 const Providers = ({ children }: _IChildren) => (
   <DarkModeProvider>

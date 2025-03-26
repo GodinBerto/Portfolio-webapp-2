@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Github from "../icons/github";
-import Linkedln from "../icons/linkdln";
-import Discord from "../icons/discord";
-import { useTheme } from "../themes/themeContext/themeContext";
+import Github from "../../app/icons/github";
+import Linkedln from "../../app/icons/linkdln";
+import Discord from "../../app/icons/discord";
+import { useTheme } from "../../app/themes/themeContext/themeContext";
 
 export default function Footer() {
   const { theme } = useTheme();

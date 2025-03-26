@@ -1,6 +1,6 @@
 import MainNavbar from "./navbar";
 import Footer from "./footer";
-import { ThemeProvider } from "../themes/themeContext/themeContext";
+import { ThemeProvider } from "../../app/themes/themeContext/themeContext";
 
 export default function PageContainer({ children }: any) {
   return (
@@ -10,7 +10,8 @@ export default function PageContainer({ children }: any) {
           <div>
             <MainNavbar />
           </div>
-          <div className="">{children}</div>
+
+          <div className="mt-16">{children}</div>
           <div>
             <Footer />
           </div>

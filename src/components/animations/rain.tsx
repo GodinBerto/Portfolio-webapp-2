@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useTheme } from "../themes/themeContext/themeContext";
+import { useTheme } from "../../app/themes/themeContext/themeContext";
 
 const Rain = () => {
   const { theme } = useTheme();
-  const [drops, setDrops] = useState<Array<{ id: number; delay: number; x: number; opacity: number }>>([]);
+  const [drops, setDrops] = useState<
+    Array<{ id: number; delay: number; x: number; opacity: number }>
+  >([]);
 
   // Theme colors mapping
   const themeColors: { [key: string]: string } = {
@@ -31,10 +33,10 @@ const Rain = () => {
   return (
     <div className="relative w-full h-[500px] overflow-hidden">
       {/* Background gradient */}
-      <div 
+      <div
         className="absolute inset-0 opacity-20 dark:opacity-10"
         style={{
-          background: `radial-gradient(circle at 50% 50%, ${currentColor}44 0%, transparent 70%)`
+          background: `radial-gradient(circle at 50% 50%, ${currentColor}44 0%, transparent 70%)`,
         }}
       />
 
