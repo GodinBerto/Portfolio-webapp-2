@@ -48,34 +48,30 @@ export default function MainNavbar() {
         <div className="flex justify-between items-center px-4 lg:px-[10rem]">
           {/* Brand Section */}
           <div className="transform transition-all duration-300 hover:scale-105">
-            <h1 className={`${currentTheme}`}>Berto&apos;Studio</h1>
+            <Link href={"/home"}>
+              <h1 className={`${currentTheme}`}>Berto&apos;Studio</h1>
+            </Link>
           </div>
 
           {/* Desktop Links */}
           <ul className="hidden lg:flex gap-4">
             <Link
-              href={"#"}
+              href={"/docs"}
               className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
             >
               Docs
             </Link>
             <Link
-              href={"#"}
+              href={"/builder"}
               className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
             >
-              Product
+              Builder
             </Link>
             <Link
-              href={"#"}
+              href={"/components"}
               className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
             >
-              Pricing
-            </Link>
-            <Link
-              href={"#"}
-              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
-            >
-              Portfolio
+              Components
             </Link>
           </ul>
 

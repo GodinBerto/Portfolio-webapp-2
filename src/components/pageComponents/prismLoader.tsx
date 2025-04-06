@@ -40,12 +40,12 @@ const PrismLoader = ({ code }: { code: string }) => {
           <Copy className="w-4 h-4" />
         )}
       </button>
-      <pre className="!bg-gray-900/95 !p-4 rounded-lg overflow-hidden
+      <pre
+        className="bg-gray-900/95 !p-4 rounded-lg overflow-hidden
                     border border-gray-700/50 backdrop-blur-sm
-                    scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-        <code className="language-tsx text-sm font-mono">
-          {code}
-        </code>
+                    scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
+      >
+        <code className="language-tsx text-sm font-mono">{code}</code>
       </pre>
     </div>
   );
