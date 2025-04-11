@@ -1,17 +1,19 @@
 "use client";
 
-import { Moon, Search, SlidersHorizontal, Sun } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import { useDarkMode } from "../../context/darkModeContext";
+// import { useDarkMode } from "../../context/darkModeContext";
+
 import Themes from "../../app/themes/page";
 import { useTheme } from "../../app/themes/themeContext/themeContext";
+import ThemeToggler from "./theme-toggle";
 
 export default function MainNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showThemes, setShowThemes] = useState(false); // State to toggle Themes visibility
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State for mobile menu
-  const { darkMode, toggleDarkMode } = useDarkMode(); // Access global darkMode state
+  // const { darkMode, toggleDarkMode } = useDarkMode(); // Access global darkMode state
   const { theme } = useTheme();
 
   const themeClasses: { [key: string]: string } = {
@@ -41,11 +43,11 @@ export default function MainNavbar() {
   return (
     <>
       <div
-        className={`p-3 fixed top-0 w-full bg-white dark:bg-semiblack backdrop-blur-md dark:text-white border-b-[1px] dark:border-gray-700 z-20 transform transition-all duration-300 ease-in-out ${
+        className={`py-4 px-5 fixed top-0 w-full bg-white dark:bg-semiblack backdrop-blur-md dark:text-white border-b-[1px] dark:border-gray-700 z-20 transform transition-all duration-300 ease-in-out ${
           isScrolled ? "shadow-lg translate-y-0" : "translate-y-0 shadow-none"
         }`}
       >
-        <div className="flex justify-between items-center px-4 lg:px-[10rem]">
+        <div className="flex justify-between items-center ">
           {/* Brand Section */}
           <div className="transform transition-all duration-300 hover:scale-105">
             <Link href={"/home"}>
@@ -97,17 +99,7 @@ export default function MainNavbar() {
 
             {/* Dark Mode Toggle */}
             <div className="relative w-6 h-10 flex items-center justify-center overflow-hidden">
-              {darkMode ? (
-                <Sun
-                  onClick={toggleDarkMode}
-                  className="cursor-pointer text-yellow-500 hover:text-yellow-600 transition-all duration-300 hover:rotate-90 hover:scale-110"
-                />
-              ) : (
-                <Moon
-                  onClick={toggleDarkMode}
-                  className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 transition-all duration-300 hover:-rotate-90 hover:scale-110"
-                />
-              )}
+              <ThemeToggler />
             </div>
 
             {/* Mobile Menu Toggle */}

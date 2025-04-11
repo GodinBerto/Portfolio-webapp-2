@@ -1,10 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Github from "../../app/icons/github";
 import Linkedln from "../../app/icons/linkdln";
 import Discord from "../../app/icons/discord";
 import { useTheme } from "../../app/themes/themeContext/themeContext";
 
-export default function Footer() {
+export default function Footer({ hidden = false }: Hidden) {
   const { theme } = useTheme();
 
   const themeClasses: {
@@ -38,7 +40,11 @@ export default function Footer() {
 
   console.log("text from me: ", currentTheme.text);
   return (
-    <footer className="p-6 dark:text-white border-t-[1px] dark:border-gray-700 flex flex-col gap-6 items-center">
+    <footer
+      className={`p-6 dark:text-white border-t-[1px] dark:border-gray-700 flex flex-col gap-6 items-center ${
+        hidden ? "hidden" : ""
+      }`}
+    >
       {/* Main container */}
       <div className="flex flex-col lg:flex-row justify-between items-start w-full max-w-7xl gap-10 lg:gap-20">
         {/* Left section */}

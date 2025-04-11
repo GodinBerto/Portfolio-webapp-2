@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import Prism from "prismjs";
 import "prismjs/components/prism-typescript";
@@ -5,9 +6,17 @@ import "prismjs/components/prism-jsx";
 import "prismjs/components/prism-tsx";
 import "prismjs/themes/prism-tomorrow.css";
 import { Copy, Check } from "lucide-react";
+import dynamic from "next/dynamic";
 
+const PrismCodeContainer = dynamic(() => import("./prismCodeContainer"), {
+  ssr: false,
+});
 const PrismLoader = ({ code }: { code: string }) => {
   const [copySuccess, setCopySuccess] = useState(false);
+
+  useEffect(() => {
+    Prism.highlightAll();
+  }, []);
 
   useEffect(() => {
     Prism.highlightAll();
@@ -40,13 +49,8 @@ const PrismLoader = ({ code }: { code: string }) => {
           <Copy className="w-4 h-4" />
         )}
       </button>
-      <pre
-        className="bg-gray-900/95 !p-4 rounded-lg overflow-hidden
-                    border border-gray-700/50 backdrop-blur-sm
-                    scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
-      >
-        <code className="language-tsx text-sm font-mono">{code}</code>
-      </pre>
+
+      <PrismCodeContainer code={code} />
     </div>
   );
 };
