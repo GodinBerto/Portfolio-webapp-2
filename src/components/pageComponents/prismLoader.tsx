@@ -1,10 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Prism from "prismjs";
-import "prismjs/components/prism-typescript";
-import "prismjs/components/prism-jsx";
-import "prismjs/components/prism-tsx";
-import "prismjs/themes/prism-tomorrow.css";
 import { Copy, Check } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -13,14 +8,6 @@ const PrismCodeContainer = dynamic(() => import("./prismCodeContainer"), {
 });
 const PrismLoader = ({ code }: { code: string }) => {
   const [copySuccess, setCopySuccess] = useState(false);
-
-  useEffect(() => {
-    Prism.highlightAll();
-  }, []);
-
-  useEffect(() => {
-    Prism.highlightAll();
-  }, [code]);
 
   const handleCopy = async () => {
     try {
@@ -37,10 +24,10 @@ const PrismLoader = ({ code }: { code: string }) => {
       <button
         onClick={handleCopy}
         className="absolute top-3 right-3 p-2 rounded-md 
-                 bg-gray-700/50 hover:bg-gray-600 transition-all duration-200
-                 text-gray-300 hover:text-white
-                 opacity-0 group-hover:opacity-100 focus:opacity-100
-                 backdrop-blur-sm"
+           bg-gray-800 hover:bg-gray-700 transition-all duration-200
+           text-white
+           opacity-0 group-hover:opacity-100 focus:opacity-100
+           shadow-md"
         aria-label={copySuccess ? "Copied!" : "Copy code"}
       >
         {copySuccess ? (

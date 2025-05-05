@@ -6,9 +6,9 @@ html {
   transition: background-color 300ms ease, color 300ms ease;
 }
 
-body {
+/* body {
   transition: background-color 300ms ease, color 300ms ease;
-}
+} */
 
 /* Custom pre and code styling */
 pre {

@@ -23,16 +23,8 @@ export default async function RootLayout({
   const theme = themeCookie?.value;
 
   return (
-    <html
-      lang="en"
-      className="transition-colors duration-300"
-      suppressHydrationWarning
-    >
-      <body
-        className={
-          (inter.className, `dark:bg-semiblack transition-colors duration-300`)
-        }
-      >
+    <html lang="en" className="" suppressHydrationWarning>
+      <body className={(inter.className, `dark:bg-semiblack`)}>
         <Providers theme={theme!}>{children}</Providers>
       </body>
     </html>

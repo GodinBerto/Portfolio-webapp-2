@@ -43,7 +43,7 @@ export default function MainNavbar() {
   return (
     <>
       <div
-        className={`py-4 px-5 fixed top-0 w-full bg-white dark:bg-semiblack backdrop-blur-md dark:text-white border-b-[1px] dark:border-gray-700 z-20 transform transition-all duration-300 ease-in-out ${
+        className={`py-4 px-5 fixed top-0 w-full bg-white dark:bg-semiblack backdrop-blur-md dark:text-white border-b-[1px] dark:border-gray-700 z-20 transform ${
           isScrolled ? "shadow-lg translate-y-0" : "translate-y-0 shadow-none"
         }`}
       >
@@ -59,19 +59,19 @@ export default function MainNavbar() {
           <ul className="hidden lg:flex gap-4">
             <Link
               href={"/docs"}
-              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
+              className="text-sm transition-all duration-700 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105 dark:text-gray-200 text-gray-800"
             >
               Docs
             </Link>
             <Link
               href={"/builder"}
-              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
+              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105 dark:text-gray-200 text-gray-800"
             >
               Builder
             </Link>
             <Link
               href={"/components"}
-              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105"
+              className="text-sm transition-all duration-200 hover:dark:bg-gray-800/80 p-[5px] rounded-md hover:dark:border-searchColor hover:dark:border-[1px] border-[1px] border-transparent hover:border-semiblack dark:border-transparent hover:scale-105 dark:text-gray-200 text-gray-800"
             >
               Components
             </Link>
