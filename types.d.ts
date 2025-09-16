@@ -2,8 +2,13 @@ interface _IChildren {
   children: React.ReactNode;
 }
 
+interface PageContainerWithFooterProps extends _IChildren {
+  fullWidth?: boolean;
+}
+
 interface Hidden {
   hidden?: boolean;
+  fullWidth?: boolean;
 }
 
 interface _IThemeContext {

@@ -1,11 +1,11 @@
 "use client";
 import { ArrowRightFromLine } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { useTheme } from "./themeContext/themeContext";
+import { useTheme } from "../../context/themeContext";
 
 export default function Themes({ closeThemes }: any) {
   const [isVisible, setIsVisible] = useState(false);
-  const { theme, changeTheme } = useTheme(); // Access the current theme and changeTheme function
+  const { changeTheme } = useTheme(); // Access the current theme and changeTheme function
 
   useEffect(() => {
     // Trigger animation when the component mounts
@@ -31,7 +31,7 @@ export default function Themes({ closeThemes }: any) {
 
   return (
     <div
-      className={`fixed top-20 right-0 bg-white dark:bg-gray-900 shadow-lg p-6 rounded-l-lg transform transition-transform duration-300 w-screen md:w-[400px] dark:text-gray-300 z-20 ${
+      className={`fixed top-20 right-0 bg-white dark:bg-gray-900 shadow-lg p-6 rounded-l-lg transform transition-transform duration-300 w-screen md:w-[400px] dark:text-gray-300 z-30 ${
         isVisible ? "translate-x-0" : "translate-x-full"
       }`}
     >

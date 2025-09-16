@@ -1,7 +1,6 @@
 "use client";
 
-import { DarkModeProvider } from "../context/darkModeContext";
-import PageContainer from "../components/pageComponents/pageContainer";
+import PageContainer from "@/components/pageComponents/site/pageContainer";
 import { ThemeProvider } from "@/context/themes.context";
 interface _IProviders {
   children: React.ReactNode;
@@ -10,7 +9,7 @@ interface _IProviders {
 
 const Providers = ({ children, theme }: _IProviders) => (
   <ThemeProvider attribute="class" enableSystem={false} defaultTheme={theme}>
-    <PageContainer>{children}</PageContainer>
+    {children}
   </ThemeProvider>
 );
 

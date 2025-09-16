@@ -1,4 +1,4 @@
-import { useTheme } from "@/app/themes/themeContext/themeContext";
+import { useTheme } from "@/context/themeContext";
 import { themeClasses } from "@/constants/themes";
 import {
   CardsTypes1,
