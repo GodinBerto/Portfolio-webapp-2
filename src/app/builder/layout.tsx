@@ -19,7 +19,7 @@ export default function BuildLayout({
       </div>
 
       {/* Canvas Area */}
-      <div className="fixed top-[60px] left-[256px] right-0 bottom-0 overflow-hidden bg-white dark:bg-gray-900">
+      <div className="fixed top-[60px] left-[300px] right-0 bottom-0 overflow-hidden bg-white dark:bg-gray-900">
         {children}
       </div>
     </div>
