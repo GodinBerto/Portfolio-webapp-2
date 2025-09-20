@@ -1,10 +1,11 @@
-import { Room } from "./room";
+"use client";
+import Live from "@/components/pageComponents/builder/live";
 import { CollaborativeApp } from "./collaborativeApp";
 
 export default function Page() {
   return (
-    <Room>
-      <CollaborativeApp />
-    </Room>
+    <div>
+      <Live />
+    </div>
   );
 }
