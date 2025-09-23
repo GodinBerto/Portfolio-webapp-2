@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import ThemeToggler from "../theme-toggle";
 import Link from "next/link";
+import ActiveUsers from "./users/activeUsers";
 
 export default function BuilderNavbar() {
   const [project, setProject] = useState("Website Builder");
@@ -81,9 +82,7 @@ export default function BuilderNavbar() {
       <div className="flex items-center space-x-3">
         {/* Collaborators */}
         <div className="flex -space-x-2">
-          <Avatar src="/images/cards/profile.jpg" alt="U1" />
-          <Avatar src="/images/cards/profile.jpg" alt="U2" />
-          <Avatar src="/images/cards/profile.jpg" alt="U3" />
+          <ActiveUsers />
         </div>
 
         {/* Share Button */}

@@ -8,6 +8,13 @@ const nextConfig = {
       "subdomain",
       "files.stripe.com",
     ],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "liveblocks.io",
+        port: "",
+      },
+    ],
   },
   reactStrictMode: false,
 };
