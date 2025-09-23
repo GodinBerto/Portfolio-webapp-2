@@ -23,7 +23,9 @@ export default async function RootLayout({
   const theme = themeCookie?.value;
 
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+    >
       <html lang="en" className="" suppressHydrationWarning>
         <body className={(inter.className, `dark:bg-semiblack`)}>
           <div className="z-0"></div>
