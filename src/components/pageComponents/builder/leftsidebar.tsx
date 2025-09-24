@@ -94,7 +94,7 @@ const initialLayers: LayerItem[] = [
   },
 ];
 
-export default function BuilderSidebar() {
+export default function BuilderLeftSidebar() {
   return (
     <aside className="w-[300px] h-full bg-gray-50 dark:bg-semiblack border-r border-gray-200 dark:border-gray-700 overflow-y-auto flex">
       <div className="border-r border-gray-200 dark:border-gray-700 flex items-center flex-col">

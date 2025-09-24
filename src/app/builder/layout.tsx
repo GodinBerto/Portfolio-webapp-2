@@ -1,9 +1,10 @@
 "use client";
 import BuilderNavbar from "@/components/pageComponents/builder/navbar";
-import BuilderSidebar from "@/components/pageComponents/builder/sidebar";
 import "@liveblocks/react-comments/styles.css";
 import { Room } from "./room";
 import { LiveblocksProvider, RoomProvider } from "@liveblocks/react";
+import BuilderLeftSidebar from "@/components/pageComponents/builder/leftsidebar";
+import BuilderRightSidebar from "@/components/pageComponents/builder/rigthsidebar";
 
 export default function BuildLayout({
   children,
@@ -23,14 +24,19 @@ export default function BuildLayout({
             <BuilderNavbar />
           </div>
 
-          {/* Sidebar */}
-          <div className="fixed top-[60px] left-0 w-[256px] h-[calc(100vh-60px)] z-10">
-            <BuilderSidebar />
+          {/* left Sidebar */}
+          <div className="fixed top-[60px] left-0 w-[300px] h-[calc(100vh-60px)] z-10">
+            <BuilderLeftSidebar />
           </div>
 
           {/* Canvas Area */}
-          <div className="fixed top-[60px] left-[300px] right-0 bottom-0 overflow-hidden bg-white dark:bg-gray-900">
+          <div className="fixed top-[60px] left-[300px] right-[300px] bottom-0 overflow-hidden bg-white dark:bg-gray-900">
             <Room>{children}</Room>
+          </div>
+
+          {/* left Sidebar */}
+          <div className="fixed top-[60px] right-0 w-[300px] h-[calc(100vh-60px)] z-10">
+            <BuilderRightSidebar />
           </div>
         </div>
       </RoomProvider>
