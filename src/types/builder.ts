@@ -194,3 +194,18 @@ export type RenderCanvas = {
   canvasObjects: any;
   activeObjectRef: any;
 };
+
+export type DropdownItemProps = {
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+  route?: string;
+  children?: DropdownItemPropsChildren[];
+};
+
+export type DropdownItemPropsChildren = {
+  icon: React.ReactNode;
+  label: string;
+  route?: string;
+  children?: DropdownItemPropsChildren[];
+};

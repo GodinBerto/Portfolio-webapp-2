@@ -4,20 +4,17 @@ import Image from "next/image";
 import { useState } from "react";
 import {
   ChevronDown,
-  Plus,
   Type,
   Square,
-  Zap,
-  Undo,
-  Redo,
   LogOut,
-  Home,
-  Save,
-  RefreshCcw,
+  MousePointer2,
+  MessageCircle,
+  Pencil,
 } from "lucide-react";
 import ThemeToggler from "../theme-toggle";
-import Link from "next/link";
 import ActiveUsers from "./users/activeUsers";
+import { DropdownItem } from "./dropdown";
+import { dropdownItems } from "@/constants/builder";
 
 export default function BuilderNavbar() {
   const [project, setProject] = useState("Website Builder");
@@ -47,13 +44,18 @@ export default function BuilderNavbar() {
           {/* Dropdown */}
           {dropdownOpen && (
             <div className="absolute mt-2 w-44 bg-white dark:bg-semiblack border border-gray-100 dark:border-gray-800 rounded-lg shadow-lg z-50">
-              <DropdownItem
-                icon={<Home size={14} />}
-                label="Go Home"
-                route="/"
-              />
-              <DropdownItem icon={<Save size={14} />} label="Save" />
-              <DropdownItem icon={<RefreshCcw size={14} />} label="Convert" />
+              {dropdownItems.map((item, index) => (
+                <div key={index}>
+                  <DropdownItem
+                    icon={item.icon}
+                    label={item.label}
+                    route={item.route}
+                    onClick={item.onClick}
+                  >
+                    {item.children}
+                  </DropdownItem>
+                </div>
+              ))}
               <div className="border-t border-gray-100 dark:border-gray-800 my-1" />
               <DropdownItem icon={<LogOut size={14} />} label="Sign Out" />
             </div>
@@ -61,14 +63,12 @@ export default function BuilderNavbar() {
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center space-x-1 ml-3">
-          <ToolbarButton icon={<Plus size={16} />} />
-          <ToolbarButton icon={<Type size={16} />} />
-          <ToolbarButton icon={<Square size={16} />} />
-          <ToolbarButton icon={<Zap size={16} />} />
-          <div className="border-l h-4 mx-2" />
-          <ToolbarButton icon={<Undo size={16} />} />
-          <ToolbarButton icon={<Redo size={16} />} />
+        <div className="flex items-center space-x-1 pl-3">
+          <ToolbarButton icon={<MousePointer2 size={18} />} />
+          <ToolbarButton icon={<Type size={18} />} />
+          <ToolbarButton icon={<Square size={18} />} />
+          <ToolbarButton icon={<MessageCircle size={18} />} />
+          <ToolbarButton icon={<Pencil size={18} />} />
         </div>
       </div>
 
@@ -101,9 +101,17 @@ export default function BuilderNavbar() {
 
 function ToolbarButton({ icon }: { icon: React.ReactNode }) {
   return (
-    <button className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800 transition">
-      {icon}
-    </button>
+    <div className="flex">
+      <button className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800 transition">
+        {icon}
+      </button>
+      <button>
+        <ChevronDown
+          size={16}
+          className="text-gray-500 w-3 hover:bg-gray-100 dark:hover:bg-neutral-800 transition h-full rounded-md"
+        />
+      </button>
+    </div>
   );
 }
 
@@ -118,29 +126,5 @@ function Avatar({ src, alt }: { src: string; alt: string }) {
         className="object-cover"
       />
     </div>
-  );
-}
-
-function DropdownItem({
-  icon,
-  label,
-  onClick,
-  route,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-  route?: string;
-}) {
-  return (
-    <Link href={route || "#"}>
-      <div
-        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer transition"
-        onClick={onClick}
-      >
-        {icon}
-        <span>{label}</span>
-      </div>
-    </Link>
   );
 }

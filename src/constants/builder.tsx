@@ -1,3 +1,19 @@
+import { DropdownItemProps } from "@/types/builder";
+import {
+  Home,
+  Save,
+  RefreshCcw,
+  Undo,
+  Redo,
+  Files,
+  Edit,
+  Copy,
+  Settings,
+  Trash2,
+  User,
+  Lock,
+} from "lucide-react";
+
 export const COLORS = ["#DC2626", "#D97706", "#059669", "#7C3AED", "#DB2777"];
 
 export const shapeElements = [
@@ -195,5 +211,87 @@ export const shortcuts = [
     key: "4",
     name: "Reactions",
     shortcut: "E",
+  },
+];
+
+export const dropdownItems: DropdownItemProps[] = [
+  {
+    icon: <Home size={14} />,
+    label: "Go to home",
+    route: "/",
+  },
+  {
+    icon: <Files size={14} />,
+    label: "File",
+    children: [
+      {
+        icon: <Save size={14} />,
+        label: "Save",
+        route: "#",
+      },
+      {
+        icon: <RefreshCcw size={14} />,
+        label: "Convert",
+        route: "#",
+      },
+      {
+        icon: <Undo size={14} />,
+        label: "Undo",
+        route: "#",
+      },
+      {
+        icon: <Redo size={14} />,
+        label: "Redo",
+        route: "#",
+      },
+    ],
+  },
+  {
+    icon: <Edit size={14} />,
+    label: "Edit",
+    children: [
+      {
+        icon: <Copy size={14} />,
+        label: "Copy",
+        route: "#",
+      },
+      {
+        icon: <Trash2 size={14} />,
+        label: "Delete",
+        route: "#",
+      },
+      {
+        icon: <Save size={14} />,
+        label: "Save As...",
+        route: "#",
+      },
+    ],
+  },
+  {
+    icon: <Settings size={14} />,
+    label: "Settings",
+    children: [
+      {
+        icon: <User size={14} />,
+        label: "Account",
+        children: [
+          {
+            icon: <Lock size={14} />,
+            label: "Privacy",
+            route: "#",
+          },
+          {
+            icon: <Settings size={14} />,
+            label: "Preferences",
+            route: "#",
+          },
+        ],
+      },
+      {
+        icon: <Settings size={14} />,
+        label: "System",
+        route: "#",
+      },
+    ],
   },
 ];

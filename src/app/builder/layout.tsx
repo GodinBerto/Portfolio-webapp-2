@@ -5,12 +5,15 @@ import { Room } from "./room";
 import { LiveblocksProvider, RoomProvider } from "@liveblocks/react";
 import BuilderLeftSidebar from "@/components/pageComponents/builder/leftsidebar";
 import BuilderRightSidebar from "@/components/pageComponents/builder/rigthsidebar";
+import { useSelector } from "react-redux";
 
 export default function BuildLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const showSidebar = useSelector((state: any) => state.sidebar.showSidebar);
+
   return (
     <LiveblocksProvider
       publicApiKey={
@@ -25,12 +28,14 @@ export default function BuildLayout({
           </div>
 
           {/* left Sidebar */}
-          <div className="fixed top-[60px] left-0 w-[300px] h-[calc(100vh-60px)] z-10">
+          <div className="fixed top-[60px] left-0  h-[calc(100vh-60px)] z-10">
             <BuilderLeftSidebar />
           </div>
 
           {/* Canvas Area */}
-          <div className="fixed top-[60px] left-[300px] right-[300px] bottom-0 overflow-hidden bg-white dark:bg-gray-900">
+          <div
+            className={`fixed top-[60px]  bottom-0 overflow-hidden bg-white dark:bg-gray-900`}
+          >
             <Room>{children}</Room>
           </div>
 

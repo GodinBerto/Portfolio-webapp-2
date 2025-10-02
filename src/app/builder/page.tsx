@@ -40,7 +40,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div>
+    <div className="">
       <Live canvasRef={canvasRef} />
     </div>
   );
