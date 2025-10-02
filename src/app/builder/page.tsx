@@ -7,19 +7,41 @@ import {
   initializeFabric,
   handleCanvasMouseDown,
   handleResize,
-} from "@/lib/canvas";
+  handleCanvaseMouseMove,
+  handleCanvasMouseUp,
+} from "@/lib/builder/canvas";
+import { setupCanvasPan } from "@/lib/builder/canvasPan";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
 
 export default function Page() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fabricRef = useRef<fabric.Canvas | null>(null);
   const isDrawing = useRef(false);
   const shapeRef = useRef<fabric.Object | null>(null);
-  const selectedShapeRef = useRef<string | null>("rectangle");
+  const activeObjectRef = useRef<fabric.Object | null>(null);
+  const selectedShapeRef = useSelector(
+    (state: RootState) => state.canvas.selectedShapeRef
+  );
+
+  // ✅ FIX: Declare syncShapeInStorage
+  const syncShapeInStorage = (shape: fabric.Object | null) => {
+    if (!shape) return;
+    console.log("Syncing shape:", shape.toJSON());
+    // later => dispatch Redux action here
+  };
+
+  // ✅ FIX: Declare setActiveElement
+  const setActiveElement = (element: any) => {
+    console.log("Set active element:", element);
+    // later => update UI state here
+  };
 
   useEffect(() => {
     const canvas = initializeFabric({ fabricRef, canvasRef });
     if (!canvas) return;
 
+    // ✅ Shapes drawing
     canvas.on("mouse:down", (options) => {
       handleCanvasMouseDown({
         options,
@@ -30,6 +52,33 @@ export default function Page() {
       });
     });
 
+    // canvas.on("mouse:move", (options) =>
+    //   handleCanvaseMouseMove({
+    //     options,
+    //     canvas,
+    //     isDrawing,
+    //     selectedShapeRef,
+    //     shapeRef,
+    //     syncShapeInStorage,
+    //   })
+    // );
+
+    // canvas.on("mouse:up", (options) =>
+    //   handleCanvasMouseUp({
+    //     canvas,
+    //     isDrawing,
+    //     shapeRef,
+    //     activeObjectRef,
+    //     selectedShapeRef,
+    //     syncShapeInStorage,
+    //     setActiveElement,
+    //   })
+    // );
+
+    // ✅ Pan + zoom setup
+    setupCanvasPan(canvas);
+
+    // ✅ Resize handler
     const resizeHandler = () => handleResize({ fabricRef });
     window.addEventListener("resize", resizeHandler);
 
@@ -37,10 +86,10 @@ export default function Page() {
       window.removeEventListener("resize", resizeHandler);
       canvas.dispose();
     };
-  }, []);
+  }, [selectedShapeRef]);
 
   return (
-    <div className="">
+    <div>
       <Live canvasRef={canvasRef} />
     </div>
   );

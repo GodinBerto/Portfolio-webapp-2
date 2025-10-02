@@ -62,7 +62,7 @@ export const handleCanvasMouseDown = ({
   canvas.isDrawingMode = false;
 
   // if selected shape is freeform, set drawing mode to true and return
-  if (selectedShapeRef.current === "freeform") {
+  if (selectedShapeRef === "freeform") {
     isDrawing.current = true;
     canvas.isDrawingMode = true;
 
@@ -80,8 +80,7 @@ export const handleCanvasMouseDown = ({
   // if target is the selected shape or active selection, set isDrawing to false
   if (
     target &&
-    (target.type === selectedShapeRef.current ||
-      target.type === "activeSelection")
+    (target.type === selectedShapeRef || target.type === "activeSelection")
   ) {
     isDrawing.current = false;
 
@@ -97,10 +96,7 @@ export const handleCanvasMouseDown = ({
     isDrawing.current = true;
 
     // create custom fabric object/shape and set it to shapeRef
-    shapeRef.current = createSpecificShape(
-      selectedShapeRef.current,
-      pointer as any
-    );
+    shapeRef.current = createSpecificShape(selectedShapeRef, pointer as any);
 
     // if shapeRef is not null, add it to canvas
     if (shapeRef.current) {
@@ -121,7 +117,7 @@ export const handleCanvaseMouseMove = ({
 }: CanvasMouseMove) => {
   // if selected shape is freeform, return
   if (!isDrawing.current) return;
-  if (selectedShapeRef.current === "freeform") return;
+  if (selectedShapeRef === "freeform") return;
 
   canvas.isDrawingMode = false;
 
@@ -130,18 +126,20 @@ export const handleCanvaseMouseMove = ({
 
   // depending on the selected shape, set the dimensions of the shape stored in shapeRef in previous step of handelCanvasMouseDown
   // calculate shape dimensions based on pointer coordinates
-  switch (selectedShapeRef?.current) {
+  switch (selectedShapeRef) {
     case "rectangle":
       shapeRef.current?.set({
         width: pointer.x - (shapeRef.current?.left || 0),
         height: pointer.y - (shapeRef.current?.top || 0),
       });
+      alert(selectedShapeRef);
       break;
 
     case "circle":
       shapeRef.current.set({
         radius: Math.abs(pointer.x - (shapeRef.current?.left || 0)) / 2,
       });
+      alert(selectedShapeRef);
       break;
 
     case "triangle":
@@ -149,6 +147,7 @@ export const handleCanvaseMouseMove = ({
         width: pointer.x - (shapeRef.current?.left || 0),
         height: pointer.y - (shapeRef.current?.top || 0),
       });
+      alert(selectedShapeRef);
       break;
 
     case "line":
@@ -156,6 +155,7 @@ export const handleCanvaseMouseMove = ({
         x2: pointer.x,
         y2: pointer.y,
       });
+      alert(selectedShapeRef);
       break;
 
     case "image":
@@ -189,7 +189,7 @@ export const handleCanvasMouseUp = ({
   setActiveElement,
 }: CanvasMouseUp) => {
   isDrawing.current = false;
-  if (selectedShapeRef.current === "freeform") return;
+  if (selectedShapeRef === "freeform") return;
 
   // sync shape in storage as drawing is stopped
   syncShapeInStorage(shapeRef.current);
@@ -197,7 +197,7 @@ export const handleCanvasMouseUp = ({
   // set everything to null
   shapeRef.current = null;
   activeObjectRef.current = null;
-  selectedShapeRef.current = null;
+  selectedShapeRef = null;
 
   // if canvas is not in drawing mode, set active element to default nav element after 700ms
   if (!canvas.isDrawingMode) {

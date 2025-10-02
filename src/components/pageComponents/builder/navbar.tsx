@@ -2,19 +2,12 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import {
-  ChevronDown,
-  Type,
-  Square,
-  LogOut,
-  MousePointer2,
-  MessageCircle,
-  Pencil,
-} from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
 import ThemeToggler from "../theme-toggle";
 import ActiveUsers from "./users/activeUsers";
 import { DropdownItem } from "./dropdown";
 import { dropdownItems } from "@/constants/builder";
+import Toolbar from "./toolbar";
 
 export default function BuilderNavbar() {
   const [project, setProject] = useState("Website Builder");
@@ -63,13 +56,7 @@ export default function BuilderNavbar() {
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center space-x-1 pl-3">
-          <ToolbarButton icon={<MousePointer2 size={18} />} />
-          <ToolbarButton icon={<Type size={18} />} />
-          <ToolbarButton icon={<Square size={18} />} />
-          <ToolbarButton icon={<MessageCircle size={18} />} />
-          <ToolbarButton icon={<Pencil size={18} />} />
-        </div>
+        <Toolbar />
       </div>
 
       {/* Middle */}
@@ -98,22 +85,6 @@ export default function BuilderNavbar() {
 }
 
 /* ---------- Small Reusable Components ---------- */
-
-function ToolbarButton({ icon }: { icon: React.ReactNode }) {
-  return (
-    <div className="flex">
-      <button className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800 transition">
-        {icon}
-      </button>
-      <button>
-        <ChevronDown
-          size={16}
-          className="text-gray-500 w-3 hover:bg-gray-100 dark:hover:bg-neutral-800 transition h-full rounded-md"
-        />
-      </button>
-    </div>
-  );
-}
 
 function Avatar({ src, alt }: { src: string; alt: string }) {
   return (

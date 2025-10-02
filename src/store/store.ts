@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import sidebarReducer from "./slice/builderSlice";
+import sidebarReducer from "./slice/sidebarSlice";
+import canvasReducer from "./slice/builder/canvasSlice";
 
 export const store = () => {
   return configureStore({
     reducer: {
       sidebar: sidebarReducer,
+      canvas: canvasReducer,
     },
   });
 };

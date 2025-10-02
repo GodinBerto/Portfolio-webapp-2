@@ -1,6 +1,7 @@
 import { BaseUserMeta, User } from "@liveblocks/client";
 import fabric, { Pattern } from "fabric";
 import { Gradient } from "jspdf";
+import { ReactNode } from "react";
 
 type Presence = any; // Replace 'any' with the actual shape if known
 
@@ -209,3 +210,9 @@ export type DropdownItemPropsChildren = {
   route?: string;
   children?: DropdownItemPropsChildren[];
 };
+
+export interface ToolbarButtonProps {
+  icon: ReactNode;
+  onClick?: () => void;
+  children?: ReactNode; // dropdown items
+}

@@ -12,7 +12,7 @@ import {
   Sidebar,
 } from "lucide-react";
 import { RootState } from "@/store/store";
-import { setSidebar } from "@/store/slice/builderSlice";
+import { setSidebar } from "@/store/slice/sidebarSlice";
 
 interface LayerItem {
   id: string;
