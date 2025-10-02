@@ -5,6 +5,7 @@ import Providers from "./providers";
 import { cookies } from "next/headers";
 import { themeKey } from "@/constants/theme.constants";
 import { ClerkProvider } from "@clerk/nextjs";
+import StoreProvider from "@/store/storeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +30,9 @@ export default async function RootLayout({
       <html lang="en" className="" suppressHydrationWarning>
         <body className={(inter.className, `dark:bg-semiblack`)}>
           <div className="z-0"></div>
-          <Providers theme={theme!}>{children}</Providers>
+          <Providers theme={theme!}>
+            <StoreProvider>{children}</StoreProvider>
+          </Providers>
         </body>
       </html>
     </ClerkProvider>

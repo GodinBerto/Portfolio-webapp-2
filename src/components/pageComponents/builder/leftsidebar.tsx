@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   ChevronRight,
   ChevronDown,
@@ -10,6 +11,8 @@ import {
   Layers,
   Sidebar,
 } from "lucide-react";
+import { RootState } from "@/store/store";
+import { setSidebar } from "@/store/slice/builderSlice";
 
 interface LayerItem {
   id: string;
@@ -94,35 +97,46 @@ const initialLayers: LayerItem[] = [
   },
 ];
 
-export default function BuilderSidebar() {
+export default function BuilderLeftSidebar() {
+  const dispatch = useDispatch();
+
+  const showSidebar = useSelector(
+    (state: RootState) => state.sidebar.showSidebar
+  );
+
   return (
-    <aside className="w-[300px] h-full bg-gray-50 dark:bg-semiblack border-r border-gray-200 dark:border-gray-700 overflow-y-auto flex">
-      <div className="border-r border-gray-200 dark:border-gray-700 flex items-center flex-col">
+    <aside className=" h-full  overflow-y-auto flex">
+      <div className="bg-gray-50 dark:bg-semiblack border-r border-gray-200 dark:border-gray-700 flex items-center flex-col w-[50px]">
         <PlusCircle
           size={28}
           className="m-2 text-gray-500 hover:text-gray-700 cursor-pointer p-1"
+          // onClick={() => setShowSidebar(!showSidebar)}
         />
         <Layers
           size={28}
-          className="m-2 text-gray-200 hover:text-gray-500 cursor-pointer bg-gray-700 rounded-md p-1"
+          className="m-2 text-gray-600 hover:text-gray-300 bg-gray-300 hover:bg-gray-500 dark:text-gray-200 dark:hover:text-gray-500 cursor-pointer dark:bg-gray-700 rounded-md p-1 transition-all duration-200"
+          onClick={() => dispatch(setSidebar(!showSidebar))}
         />
       </div>
-      <div className="overflow-hidden w-full">
-        <div className="p-3 flex items-center justify-between gap-2">
-          <h1 className=" text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-            Layers
-          </h1>
-          <Sidebar
-            size={18}
-            className="text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-200"
-          />
+      {showSidebar && (
+        <div className="overflow-hidden bg-gray-50 dark:bg-semiblack border-r border-gray-200 dark:border-gray-700 w-[250px]">
+          <div className="p-3 flex items-center justify-between gap-2">
+            <h1 className=" text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+              Layers
+            </h1>
+            <Sidebar
+              size={18}
+              className="text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-200"
+              onClick={() => dispatch(setSidebar(!showSidebar))}
+            />
+          </div>
+          <div className="px-2">
+            {initialLayers.map((layer) => (
+              <LayerNode key={layer.id} node={layer} />
+            ))}
+          </div>
         </div>
-        <div className="px-2">
-          {initialLayers.map((layer) => (
-            <LayerNode key={layer.id} node={layer} />
-          ))}
-        </div>
-      </div>
+      )}
     </aside>
   );
 }

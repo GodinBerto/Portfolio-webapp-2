@@ -1,3 +1,4 @@
+"use client";
 import {
   useBroadcastEvent,
   useEventListener,
@@ -16,8 +17,13 @@ import {
 import ReactionSelector from "./reaction/reactionButton";
 import FlyingReaction from "./reaction/flyingReaction";
 import useInterval from "@/hooks/useInterval";
+import Canvas from "./canvas";
 
-export default function Live() {
+type Props = {
+  canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
+};
+
+export default function Live({ canvasRef }: Props) {
   const others = useOthers();
   const [{ cursor }, updateMyPresence] = useMyPresence() as any;
   const [cursorState, setCursorState] = useState<CursorState>({
@@ -164,12 +170,15 @@ export default function Live() {
 
   return (
     <div
+      id="canvas-container"
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       className="h-screen w-full bg-white relative"
     >
+      <Canvas canvasRef={canvasRef} />
+
       {reaction.map((reaction, index) => (
         <FlyingReaction
           key={`${reaction.timestamp}-${index}`}
@@ -179,6 +188,7 @@ export default function Live() {
           value={reaction.value}
         />
       ))}
+
       {cursor && (
         <CursorChat
           cursor={cursor}
@@ -191,6 +201,7 @@ export default function Live() {
       {cursorState.mode === CursorMode.ReactionSelector && (
         <ReactionSelector setReaction={setReactions} />
       )}
+
       <LiveCursor others={others} />
     </div>
   );
