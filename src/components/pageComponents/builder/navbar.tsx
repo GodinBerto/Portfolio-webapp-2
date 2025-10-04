@@ -8,6 +8,7 @@ import ActiveUsers from "./users/activeUsers";
 import { DropdownItem } from "./dropdown";
 import { dropdownItems } from "@/constants/builder";
 import Toolbar from "./toolbar";
+import Button1 from "@/components/do-not-touch/buttons/button1";
 
 export default function BuilderNavbar() {
   const [project, setProject] = useState("Website Builder");
@@ -73,9 +74,7 @@ export default function BuilderNavbar() {
         </div>
 
         {/* Share Button */}
-        <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium px-4 py-1.5 rounded-md">
-          Share
-        </button>
+        <Button1>Share</Button1>
         <div>
           <ThemeToggler />
         </div>

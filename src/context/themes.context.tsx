@@ -13,7 +13,7 @@ import { themeKey } from "@/constants/theme.constants";
 
 const colorSchemes = ["light", "dark"];
 const MEDIA = "(prefers-color-scheme: dark)";
-const isServer = typeof window === "undefined";
+// const isServer = typeof window === "undefined";
 const ThemeContext = createContext<_IThemeContext | undefined>(undefined);
 const defaultContext: _IThemeContext = { setTheme: (_) => {}, themes: [] };
 
@@ -302,7 +302,7 @@ const ThemeScript = memo(
 
 ThemeScript.displayName = "ThemeScript";
 const getTheme = (key: string, fallback?: string) => {
-  if (isServer) return undefined;
+  // if (isServer) return undefined;
   let theme;
   try {
     console.log(getCookie(key));

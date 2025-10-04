@@ -1,3 +1,4 @@
+import { useTheme } from "@/context/themes.context";
 import { MousePointer, MousePointer2, TextCursor } from "lucide-react";
 
 export default function Cursor({
@@ -11,12 +12,16 @@ export default function Cursor({
   y: number;
   message?: string;
 }) {
+  const { theme } = useTheme();
+
   return (
     <div
       className="pointer-events-none absolute top-0 left-0"
       style={{ transform: `translateX(${x}px) translateY(${y}px)` }}
     >
-      <MousePointer2 />
+      <MousePointer2
+        className={theme === "dark" ? "text-white" : "text-black"}
+      />
 
       {message && (
         <div className="absolute left-2 top-5 bg-blue-500 px-4 py-2 text-sm leading-relaxed text-white rounded-[20px]">

@@ -175,7 +175,7 @@ export default function Live({ canvasRef }: Props) {
       onPointerLeave={handlePointerLeave}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      className="h-screen w-full bg-white relative"
+      className="h-screen w-full bg-white dark:bg-semiblack relative"
     >
       <Canvas canvasRef={canvasRef} />
 

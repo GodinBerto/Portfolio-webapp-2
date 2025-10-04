@@ -1,7 +1,7 @@
 "use client";
 import BuilderNavbar from "@/components/pageComponents/builder/navbar";
 import "@liveblocks/react-comments/styles.css";
-import { Room } from "./room";
+import { Room } from "../../components/pageComponents/builder/room";
 import { LiveblocksProvider, RoomProvider } from "@liveblocks/react";
 import BuilderLeftSidebar from "@/components/pageComponents/builder/leftsidebar";
 import BuilderRightSidebar from "@/components/pageComponents/builder/rigthsidebar";
@@ -33,9 +33,7 @@ export default function BuildLayout({
           </div>
 
           {/* Canvas Area */}
-          <div
-            className={`fixed top-[60px]  bottom-0 overflow-hidden bg-white dark:bg-gray-900`}
-          >
+          <div className={`fixed top-[60px]  bottom-0 overflow-hidden `}>
             <Room>{children}</Room>
           </div>
 
