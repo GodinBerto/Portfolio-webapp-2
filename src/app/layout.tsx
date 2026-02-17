@@ -21,20 +21,28 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
   const themeCookie = cookieStore.get(themeKey);
-  const theme = themeCookie?.value;
+  const theme = themeCookie?.value ?? "light";
+  const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const hasClerkEnv = Boolean(clerkPublishableKey && process.env.CLERK_SECRET_KEY);
+
+  const appShell = (
+    <html lang="en" className="" suppressHydrationWarning>
+      <body className={`${inter.className} dark:bg-semiblack`}>
+        <div className="z-0"></div>
+        <Providers theme={theme}>
+          <StoreProvider>{children}</StoreProvider>
+        </Providers>
+      </body>
+    </html>
+  );
+
+  if (!hasClerkEnv || !clerkPublishableKey) {
+    return appShell;
+  }
 
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-    >
-      <html lang="en" className="" suppressHydrationWarning>
-        <body className={(inter.className, `dark:bg-semiblack`)}>
-          <div className="z-0"></div>
-          <Providers theme={theme!}>
-            <StoreProvider>{children}</StoreProvider>
-          </Providers>
-        </body>
-      </html>
+    <ClerkProvider publishableKey={clerkPublishableKey}>
+      {appShell}
     </ClerkProvider>
   );
 }
