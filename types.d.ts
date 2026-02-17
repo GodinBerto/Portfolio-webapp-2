@@ -21,6 +21,7 @@ interface _IThemeContext {
   resolvedTheme?: string;
   /** If enableSystem is true, returns the System theme preference ("dark" or "light"), regardless what the active theme is */
   systemTheme?: _IThemeType;
+  ready?: boolean;
 }
 interface _ThemeProviderProps {
   /** List of all available theme names */

@@ -1,27 +1,24 @@
 import { BaseUserMeta, User } from "@liveblocks/client";
-import fabric, { Pattern } from "fabric";
-import { Gradient } from "jspdf";
+import * as fabric from "fabric";
+import { ReactNode } from "react";
 
-type Presence = any; // Replace 'any' with the actual shape if known
+type Presence = {
+  cursor?: {
+    x: number;
+    y: number;
+  } | null;
+  message?: string | null;
+};
 
 export type LiveCursorsProps = {
   others: readonly User<Presence, BaseUserMeta>[];
 };
 
-// type CursorMode = {
-//   Hidden;
-//   Chat;
-//   ReactionSelector;
-//   Reaction;
-// };
-
-// Define CursorMode enum if not imported from elsewhere
 export enum CursorMode {
   Hidden = "Hidden",
   Chat = "Chat",
   ReactionSelector = "ReactionSelector",
   Reaction = "Reaction",
-  // Add other modes if needed
 }
 
 export type CursorState =
@@ -43,19 +40,26 @@ export type CursorState =
     };
 
 export type CursorChatProps = {
-  cursor: any;
-  cursorState: any;
-  setCursorState: (state: any) => void;
-  updateMyPresence: (presence: any) => void;
+  cursor: {
+    x: number;
+    y: number;
+  };
+  cursorState: CursorState;
+  setCursorState: React.Dispatch<React.SetStateAction<CursorState>>;
+  updateMyPresence: (presence: Partial<Presence>) => void;
 };
 
 export type Reaction = {
   value: string;
   timestamp: number;
-  point: { x: number; y: number };
+  point: {
+    x: number;
+    y: number;
+  };
 };
 
 export type ReactionEvent = {
+  type: "reaction";
   x: number;
   y: number;
   value: string;
@@ -65,7 +69,7 @@ export type ShapeData = {
   type: string;
   width: number;
   height: number;
-  fill: string | Pattern | Gradient;
+  fill: string | fabric.Pattern | unknown;
   left: number;
   top: number;
   objectId: string | undefined;
@@ -95,7 +99,7 @@ export interface CustomFabricObject<T extends fabric.Object>
 export type ModifyShape = {
   canvas: fabric.Canvas;
   property: string;
-  value: any;
+  value: unknown;
   activeObjectRef: React.MutableRefObject<fabric.Object | null>;
   syncShapeInStorage: (shape: fabric.Object) => void;
 };
@@ -119,32 +123,26 @@ export type RightSidebarProps = {
   fabricRef: React.RefObject<fabric.Canvas | null>;
   activeObjectRef: React.RefObject<fabric.Object | null>;
   isEditingRef: React.MutableRefObject<boolean>;
-  syncShapeInStorage: (obj: any) => void;
+  syncShapeInStorage: (obj: unknown) => void;
 };
 
 export type NavbarProps = {
   activeElement: ActiveElement;
-  imageInputRef: React.MutableRefObject<HTMLInputElement | null>;
-  handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleActiveElement: (element: ActiveElement) => void;
+  imageInputRef: File | null;
 };
 
 export type ShapesMenuProps = {
-  item: {
+  item?: {
     name: string;
     icon: string;
     value: Array<ActiveElement>;
   };
-  activeElement: any;
-  handleActiveElement: any;
-  handleImageUpload: any;
-  imageInputRef: any;
 };
 
 export type CanvasMouseDown = {
   options: fabric.TEvent;
   canvas: fabric.Canvas;
-  selectedShapeRef: any;
+  selectedShapeRef: string;
   isDrawing: React.MutableRefObject<boolean>;
   shapeRef: React.MutableRefObject<fabric.Object | null>;
 };
@@ -153,46 +151,54 @@ export type CanvasMouseMove = {
   options: fabric.TEvent;
   canvas: fabric.Canvas;
   isDrawing: React.MutableRefObject<boolean>;
-  selectedShapeRef: any;
-  shapeRef: any;
+  selectedShapeRef: string;
+  shapeRef: React.MutableRefObject<fabric.Object | null>;
   syncShapeInStorage: (shape: fabric.Object) => void;
 };
 
 export type CanvasMouseUp = {
   canvas: fabric.Canvas;
   isDrawing: React.MutableRefObject<boolean>;
-  shapeRef: any;
+  shapeRef: React.MutableRefObject<fabric.Object | null>;
   activeObjectRef: React.MutableRefObject<fabric.Object | null>;
-  selectedShapeRef: any;
+  selectedShapeRef: string | null;
   syncShapeInStorage: (shape: fabric.Object) => void;
-  setActiveElement: any;
+  setActiveElement: (element: ActiveElement) => void;
 };
 
 export type CanvasObjectModified = {
-  options: fabric.TEvent<MouseEvent> & { target: fabric.Object };
+  options: fabric.TEvent<MouseEvent> & {
+    target: fabric.Object;
+  };
   syncShapeInStorage: (shape: fabric.Object) => void;
 };
 
 export type CanvasPathCreated = {
-  options: (fabric.TEvent & { path: CustomFabricObject<fabric.Path> }) | any;
+  options: fabric.TEvent & {
+    path?: CustomFabricObject<fabric.Path>;
+  };
   syncShapeInStorage: (shape: fabric.Object) => void;
 };
 
 export type CanvasSelectionCreated = {
-  options: fabric.TEvent<MouseEvent> & { selected?: fabric.Object[] };
+  options: fabric.TEvent<MouseEvent> & {
+    selected?: fabric.Object[];
+  };
   isEditingRef: React.MutableRefObject<boolean>;
   setElementAttributes: React.Dispatch<React.SetStateAction<Attributes>>;
 };
 
 export type CanvasObjectScaling = {
-  options: fabric.TEvent<MouseEvent> & { target: fabric.Object };
+  options: fabric.TEvent<MouseEvent> & {
+    target: fabric.Object;
+  };
   setElementAttributes: React.Dispatch<React.SetStateAction<Attributes>>;
 };
 
 export type RenderCanvas = {
   fabricRef: React.MutableRefObject<fabric.Canvas | null>;
-  canvasObjects: any;
-  activeObjectRef: any;
+  canvasObjects: Map<string, unknown>;
+  activeObjectRef: React.MutableRefObject<fabric.Object | null>;
 };
 
 export type DropdownItemProps = {
@@ -207,5 +213,14 @@ export type DropdownItemPropsChildren = {
   icon: React.ReactNode;
   label: string;
   route?: string;
+  onClick?: () => void;
   children?: DropdownItemPropsChildren[];
 };
+
+export interface ToolbarButtonProps {
+  icon: ReactNode;
+  onClick?: () => void;
+  children?: ReactNode;
+  active?: boolean;
+  disabled?: boolean;
+}

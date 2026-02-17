@@ -3,39 +3,35 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "../../context/themes.context";
 import { Moon, Sun } from "lucide-react";
 
-const themeClass = ``;
+type Props = {
+  onClick?: () => void;
+};
 
-function SvgSun() {
+function SvgSun({ onClick }: Props) {
   return (
-    <Sun className="cursor-pointer text-yellow-500 hover:text-yellow-600 transition-all duration-300 hover:rotate-90 hover:scale-110" />
+    <Sun
+      className="cursor-pointer text-yellow-500 hover:text-yellow-600 transition-all duration-300 hover:rotate-90 hover:scale-110"
+      onClick={onClick}
+    />
   );
 }
 
-function SvgMoon() {
+function SvgMoon({ onClick }: Props) {
   return (
-    <Moon className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 transition-all duration-300 hover:-rotate-90 hover:scale-110" />
+    <Moon
+      className="cursor-pointer text-gray-700 dark:text-gray-300 hover:text-gray-900 transition-all duration-300 hover:-rotate-90 hover:scale-110"
+      onClick={onClick}
+    />
   );
 }
 
 const ThemeToggler = () => {
   const { theme, setTheme } = useTheme();
 
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null; // Prevent mismatches by rendering nothing on server
-
-  return (
-    <div
-      aria-label="theme toggler"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={themeClass}
-    >
-      {theme === "dark" ? <SvgSun /> : <SvgMoon />}
-    </div>
+  return theme === "dark" ? (
+    <SvgSun onClick={() => setTheme("light")} />
+  ) : (
+    <SvgMoon onClick={() => setTheme("dark")} />
   );
 };
 
