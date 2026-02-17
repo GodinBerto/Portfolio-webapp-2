@@ -10,7 +10,7 @@ export default function LiveCursor({ others }: LiveCursorsProps) {
         colors="black"
         x={presence.cursor.x}
         y={presence.cursor.y}
-        message={presence.message}
+        message={presence.message ?? undefined}
       />
     );
   });

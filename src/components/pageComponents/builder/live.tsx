@@ -122,7 +122,7 @@ export default function Live({ canvasRef }: Props) {
         return cursorState.mode === CursorMode.Reaction
           ? {
               ...state,
-              isPressed: true,
+              isPressed: false,
             }
           : state;
       });
@@ -175,7 +175,7 @@ export default function Live({ canvasRef }: Props) {
       onPointerLeave={handlePointerLeave}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      className="h-screen w-full bg-white dark:bg-semiblack relative"
+      className="h-full w-full bg-white dark:bg-semiblack relative"
     >
       <Canvas canvasRef={canvasRef} />
 

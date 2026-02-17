@@ -11,7 +11,7 @@ import Toolbar from "./toolbar";
 import Button1 from "@/components/do-not-touch/buttons/button1";
 
 export default function BuilderNavbar() {
-  const [project, setProject] = useState("Website Builder");
+  const [project] = useState("Website Builder");
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
@@ -80,21 +80,5 @@ export default function BuilderNavbar() {
         </div>
       </div>
     </header>
-  );
-}
-
-/* ---------- Small Reusable Components ---------- */
-
-function Avatar({ src, alt }: { src: string; alt: string }) {
-  return (
-    <div className="w-7 h-7 rounded-full border border-white overflow-hidden">
-      <Image
-        src={src}
-        alt={alt}
-        width={28}
-        height={28}
-        className="object-cover"
-      />
-    </div>
   );
 }

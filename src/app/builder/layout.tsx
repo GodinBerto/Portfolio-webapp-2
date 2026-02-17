@@ -13,6 +13,8 @@ export default function BuildLayout({
   children: React.ReactNode;
 }) {
   const showSidebar = useSelector((state: any) => state.sidebar.showSidebar);
+  const leftOffset = showSidebar ? 300 : 50;
+  const rightOffset = 300;
 
   return (
     <LiveblocksProvider
@@ -33,11 +35,14 @@ export default function BuildLayout({
           </div>
 
           {/* Canvas Area */}
-          <div className={`fixed top-[60px]  bottom-0 overflow-hidden `}>
+          <div
+            className="fixed top-[60px] bottom-0 overflow-hidden"
+            style={{ left: `${leftOffset}px`, right: `${rightOffset}px` }}
+          >
             <Room>{children}</Room>
           </div>
 
-          {/* left Sidebar */}
+          {/* Right Sidebar */}
           <div className="fixed top-[60px] right-0 w-[300px] h-[calc(100vh-60px)] z-10">
             <BuilderRightSidebar />
           </div>

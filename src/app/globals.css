@@ -33,3 +33,12 @@ code {
   color: blue;
   background-color: transparent !important;
 }
+
+#canvas-container .canvas-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#canvas-container .upper-canvas {
+  background: transparent !important;
+}
