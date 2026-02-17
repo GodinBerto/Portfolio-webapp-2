@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { ChevronDown, LogOut } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, CircleHelp, LogOut } from "lucide-react";
 import ThemeToggler from "../theme-toggle";
 import ActiveUsers from "./users/activeUsers";
 import { DropdownItem } from "./dropdown";
@@ -75,6 +76,14 @@ export default function BuilderNavbar() {
 
         {/* Share Button */}
         <Button1>Share</Button1>
+        <Link
+          href="/site/docs#shortcuts"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-600 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+          title="Open keyboard shortcuts"
+          aria-label="Open keyboard shortcuts"
+        >
+          <CircleHelp size={16} />
+        </Link>
         <div>
           <ThemeToggler />
         </div>

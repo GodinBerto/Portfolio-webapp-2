@@ -1,96 +1,149 @@
 import DocsFrame from "@/components/pageComponents/site/docsFrame";
 import PageContainerWithFooter from "@/components/pageComponents/site/pageContainerWithFooter";
-import { Info } from "lucide-react";
+import { Info, Keyboard, Sparkles } from "lucide-react";
+
+const toolRows = [
+  { tool: "Select", action: "Select and edit existing elements" },
+  { tool: "Text", action: "Add editable text blocks" },
+  { tool: "Rectangle", action: "Draw rectangle shapes" },
+  { tool: "Circle", action: "Draw circle/ellipse shapes" },
+  { tool: "Triangle", action: "Draw triangle shapes" },
+  { tool: "Line", action: "Draw line shapes" },
+  { tool: "Free Draw", action: "Sketch directly on canvas" },
+  { tool: "Image", action: "Upload and place images" },
+  { tool: "Desktop Frame", action: "Create desktop design frame" },
+  { tool: "Tablet Frame", action: "Create tablet design frame" },
+  { tool: "Mobile Frame", action: "Create mobile design frame" },
+];
+
+const liveRows = [
+  { key: "/", action: "Open chat input at your cursor" },
+  { key: "E", action: "Open reaction selector" },
+  { key: "Esc", action: "Close chat/reaction mode" },
+];
+
+const shortcutRows = [
+  { key: "V", action: "Switch to Select tool" },
+  { key: "X", action: "Switch to Text tool" },
+  { key: "R", action: "Switch to Rectangle tool" },
+  { key: "C", action: "Switch to Circle tool" },
+  { key: "T", action: "Switch to Triangle tool" },
+  { key: "L", action: "Switch to Line tool" },
+  { key: "P", action: "Switch to Free Draw tool" },
+  { key: "D", action: "Switch to Desktop Frame tool" },
+  { key: "B", action: "Switch to Tablet Frame tool" },
+  { key: "M", action: "Switch to Mobile Frame tool" },
+  { key: "Delete / Backspace", action: "Delete selected layer(s)" },
+  { key: "Ctrl/Cmd + Z", action: "Undo" },
+  { key: "Ctrl/Cmd + Y", action: "Redo" },
+  { key: "Ctrl/Cmd + Shift + Z", action: "Redo" },
+  { key: "Alt + Drag", action: "Pan canvas with mouse" },
+  { key: "Ctrl + Mouse Wheel", action: "Zoom to cursor position" },
+  { key: "Mouse Wheel", action: "Zoom canvas center" },
+];
 
 export default function Docs() {
   return (
-    <div className="">
+    <div>
       <DocsFrame>
         <PageContainerWithFooter fullWidth={false}>
-          <div className="max-w-4xl mx-auto py-12 px-4 text-white">
-            {/* Header */}
-            <h1 className="text-4xl font-bold mb-2">
-              Berto&apos;Studio - Overview
-            </h1>
-            <p className="text-gray-300 text-lg mb-8">
-              Berto&apos;Studio is a powerful, open-source React component
-              library built to help developers ship beautiful, responsive
-              interfaces faster than ever. It comes packed with modern
-              components and customization options out of the box.
+          <div className="mx-auto max-w-4xl px-4 py-12 text-white">
+            <h1 className="mb-2 text-4xl font-bold">Berto&apos;Studio - Builder Docs</h1>
+            <p className="mb-8 text-lg text-gray-300">
+              Everything you need for the live builder workflow, frames, and collaboration.
             </p>
 
-            {/* Introduction */}
-            <h2 className="text-2xl font-bold mb-2">Introduction</h2>
-            <p className="text-gray-300 mb-4">
-              Berto&apos;Studio is designed to simplify front-end development by
-              offering a curated set of reusable, production-ready UI components
-              inspired by modern design trends.
-            </p>
-            <p className="text-gray-300 mb-6">
-              Whether you&apos;re building dashboards, forms, or complete web
-              apps, Berto&apos;Studio helps you stay consistent and efficient
-              with built-in theming and developer-friendly APIs.
-            </p>
-
-            {/* Alert Box */}
-            <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 flex items-start gap-3 mb-10">
-              <Info className="text-blue-400 mt-1" size={20} />
-              <p className="text-gray-200 text-sm">
-                Berto&apos;Studio is actively maintained and evolving. Follow
-                our{" "}
-                <a
-                  href="https://github.com/your-org/bertostudio/issues"
-                  className="text-blue-400 underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  GitHub issues
-                </a>{" "}
-                page for the latest features, updates, and community
-                contributions.
+            <section id="introduction" className="mb-10 scroll-mt-24">
+              <h2 className="mb-2 text-2xl font-bold">Introduction</h2>
+              <p className="text-gray-300">
+                Berto&apos;Studio includes a Figma-style builder with frames, nested layers,
+                canvas editing, and multiplayer collaboration tools.
               </p>
-            </div>
+            </section>
 
-            {/* Advantages */}
-            <h2 className="text-2xl font-bold mb-4">
-              Why Choose Berto&apos;Studio?
-            </h2>
-            <ul className="list-disc list-inside text-gray-300 space-y-4">
-              <li>
-                <strong>Rapid Development:</strong> Speed up your workflow with
-                a large collection of plug-and-play components built for
-                performance and usability.
-              </li>
-              <li>
-                <strong>Modern Aesthetics:</strong> Every component in
-                Berto&apos;Studio is designed with modern UI principles in
-                mind—clean, responsive, and highly polished.
-              </li>
-              <li>
-                <strong>Customizable Themes:</strong> Berto&apos;Studio comes
-                with a flexible theming engine so you can match your
-                brand&apos;s style effortlessly.
-              </li>
-              <li>
-                <strong>Developer Friendly:</strong> Built with TypeScript and
-                great DX in mind—intellisense, typing, and flexible props
-                included.
-              </li>
-              <li>
-                <strong>Community Powered:</strong> Join a growing community of
-                developers contributing to and benefiting from
-                Berto&apos;Studio. Support is available on{" "}
-                <a
-                  href="https://stackoverflow.com"
-                  className="text-blue-400 underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Stack Overflow
-                </a>{" "}
-                and GitHub Discussions.
-              </li>
-            </ul>
+            <section id="installation" className="mb-10 scroll-mt-24">
+              <h2 className="mb-2 text-2xl font-bold">Installations</h2>
+              <p className="text-gray-300">Install dependencies and run the dev server:</p>
+              <pre className="mt-3 rounded-lg border border-gray-700 bg-gray-900 p-4 text-sm text-gray-200">
+                npm install{"\n"}npm run dev
+              </pre>
+            </section>
+
+            <section id="quickstart" className="mb-10 scroll-mt-24">
+              <h2 className="mb-2 text-2xl font-bold">Quickstart</h2>
+              <ol className="list-decimal space-y-2 pl-6 text-gray-300">
+                <li>Create a frame (desktop/tablet/mobile).</li>
+                <li>Add shapes/text/images inside the frame.</li>
+                <li>Use the Layers panel to select nested items.</li>
+                <li>Use the Properties panel to style and position elements.</li>
+              </ol>
+            </section>
+
+            <section id="builder-tools" className="mb-12 scroll-mt-24">
+              <h2 className="mb-3 flex items-center gap-2 text-2xl font-bold">
+                <Sparkles size={20} /> Builder Tools
+              </h2>
+              <table className="w-full overflow-hidden rounded-lg border border-gray-700 text-left">
+                <thead className="bg-gray-900">
+                  <tr>
+                    <th className="px-4 py-2 text-sm font-semibold">Tool</th>
+                    <th className="px-4 py-2 text-sm font-semibold">What It Does</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {toolRows.map((row) => (
+                    <tr key={row.tool} className="border-t border-gray-700">
+                      <td className="px-4 py-2 text-sm text-gray-200">{row.tool}</td>
+                      <td className="px-4 py-2 text-sm text-gray-300">{row.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+
+            <section id="live-collaboration" className="mb-12 scroll-mt-24">
+              <h2 className="mb-3 flex items-center gap-2 text-2xl font-bold">
+                <Info size={20} /> Live Collaboration
+              </h2>
+              <table className="w-full overflow-hidden rounded-lg border border-gray-700 text-left">
+                <thead className="bg-gray-900">
+                  <tr>
+                    <th className="px-4 py-2 text-sm font-semibold">Key</th>
+                    <th className="px-4 py-2 text-sm font-semibold">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {liveRows.map((row) => (
+                    <tr key={row.key} className="border-t border-gray-700">
+                      <td className="px-4 py-2 text-sm text-gray-200">{row.key}</td>
+                      <td className="px-4 py-2 text-sm text-gray-300">{row.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+
+            <section id="shortcuts" className="scroll-mt-24">
+              <h2 className="mb-3 flex items-center gap-2 text-2xl font-bold">
+                <Keyboard size={20} /> Keyboard Shortcuts
+              </h2>
+              <table className="w-full overflow-hidden rounded-lg border border-gray-700 text-left">
+                <thead className="bg-gray-900">
+                  <tr>
+                    <th className="px-4 py-2 text-sm font-semibold">Shortcut</th>
+                    <th className="px-4 py-2 text-sm font-semibold">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shortcutRows.map((row) => (
+                    <tr key={row.key} className="border-t border-gray-700">
+                      <td className="px-4 py-2 text-sm text-gray-200">{row.key}</td>
+                      <td className="px-4 py-2 text-sm text-gray-300">{row.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
           </div>
         </PageContainerWithFooter>
       </DocsFrame>

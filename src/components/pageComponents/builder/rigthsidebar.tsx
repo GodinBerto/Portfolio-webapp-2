@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getBuilderRuntime } from "@/lib/builder/runtime";
@@ -10,11 +10,54 @@ const asNumber = (value: string) => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+const toHex = (value: number) => value.toString(16).padStart(2, "0");
+
+const normalizeColorToHex = (value: string | undefined, fallback: string) => {
+  if (!value) return fallback;
+  const normalized = value.trim();
+
+  if (/^#[0-9a-f]{6}$/i.test(normalized)) {
+    return normalized.toLowerCase();
+  }
+
+  if (/^#[0-9a-f]{3}$/i.test(normalized)) {
+    const r = normalized[1];
+    const g = normalized[2];
+    const b = normalized[3];
+    return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+  }
+
+  const rgbMatch = normalized.match(/^rgba?\((.+)\)$/i);
+  if (!rgbMatch) return fallback;
+
+  const channels = rgbMatch[1]
+    .split(",")
+    .slice(0, 3)
+    .map((channel) => Number(channel.trim()));
+
+  if (channels.length !== 3 || channels.some((channel) => !Number.isFinite(channel))) {
+    return fallback;
+  }
+
+  const [r, g, b] = channels.map((channel) =>
+    Math.max(0, Math.min(255, Math.round(channel)))
+  );
+
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+};
+
 export default function BuilderRightSidebar() {
   const runtime = getBuilderRuntime();
   const activeObject = useSelector((state: RootState) => state.canvas.activeObject);
   const canUndo = useSelector((state: RootState) => state.canvas.canUndo);
   const canRedo = useSelector((state: RootState) => state.canvas.canRedo);
+  const [fillDraft, setFillDraft] = useState("#2563eb");
+  const [strokeDraft, setStrokeDraft] = useState("#2563eb");
+
+  useEffect(() => {
+    setFillDraft(normalizeColorToHex(activeObject?.fill, "#2563eb"));
+    setStrokeDraft(normalizeColorToHex(activeObject?.stroke, "#2563eb"));
+  }, [activeObject?.id, activeObject?.fill, activeObject?.stroke]);
 
   const objectType = useMemo(() => {
     if (!activeObject?.type) return "";
@@ -119,20 +162,46 @@ export default function BuilderRightSidebar() {
             <LabeledField label="Fill">
               <input
                 type="color"
-                value={activeObject.fill || "#2563eb"}
-                onChange={(event) =>
-                  runtime.updateActiveObject({ fill: event.target.value })
-                }
+                value={fillDraft}
+                onInput={(event) => {
+                  const nextColor = event.currentTarget.value;
+                  setFillDraft(nextColor);
+                  runtime.updateActiveObject(
+                    { fill: nextColor },
+                    { commitHistory: false, syncStore: false }
+                  );
+                }}
+                onChange={(event) => {
+                  const nextColor = event.target.value;
+                  setFillDraft(nextColor);
+                  runtime.updateActiveObject(
+                    { fill: nextColor },
+                    { commitHistory: true, syncStore: true }
+                  );
+                }}
                 className="h-9 w-full cursor-pointer rounded-md border border-gray-300 bg-white p-1 dark:border-gray-600 dark:bg-[#0f0f0f]"
               />
             </LabeledField>
             <LabeledField label="Stroke">
               <input
                 type="color"
-                value={activeObject.stroke || "#2563eb"}
-                onChange={(event) =>
-                  runtime.updateActiveObject({ stroke: event.target.value })
-                }
+                value={strokeDraft}
+                onInput={(event) => {
+                  const nextColor = event.currentTarget.value;
+                  setStrokeDraft(nextColor);
+                  runtime.updateActiveObject(
+                    { stroke: nextColor },
+                    { commitHistory: false, syncStore: false }
+                  );
+                }}
+                onChange={(event) => {
+                  const nextColor = event.target.value;
+                  setStrokeDraft(nextColor);
+                  runtime.updateActiveObject(
+                    { stroke: nextColor },
+                    { commitHistory: true, syncStore: true }
+                  );
+                }}
                 className="h-9 w-full cursor-pointer rounded-md border border-gray-300 bg-white p-1 dark:border-gray-600 dark:bg-[#0f0f0f]"
               />
             </LabeledField>

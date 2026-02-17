@@ -10,6 +10,7 @@ import { RootState } from "@/store/store";
 import {
   ActiveCanvasObject,
   BuilderTool,
+  FramePreset,
   clearActiveObject,
   setActiveObject,
   setHistoryState,
@@ -19,13 +20,64 @@ import {
 } from "@/store/slice/builder/canvasSlice";
 import { resetBuilderRuntime, setBuilderRuntime } from "@/lib/builder/runtime";
 
-type FabricObjectWithId = fabric.Object & { objectId?: string };
+type FabricObjectWithMeta = fabric.Object & {
+  objectId?: string;
+  parentFrameId?: string | null;
+  isFrame?: boolean;
+  framePreset?: FramePreset;
+  objectName?: string;
+};
+
+type FrameFabricObject = FabricObjectWithMeta & {
+  isFrame: true;
+};
+
+const BUILDER_CUSTOM_PROPERTIES = [
+  "objectId",
+  "parentFrameId",
+  "isFrame",
+  "framePreset",
+  "objectName",
+] as const;
+
+const FRAME_PRESETS: Record<
+  "frameDesktop" | "frameTablet" | "frameMobile",
+  { preset: FramePreset; label: string; width: number; height: number }
+> = {
+  frameDesktop: {
+    preset: "desktop",
+    label: "Desktop Frame",
+    width: 1440,
+    height: 1024,
+  },
+  frameTablet: {
+    preset: "tablet",
+    label: "Tablet Frame",
+    width: 834,
+    height: 1112,
+  },
+  frameMobile: {
+    preset: "mobile",
+    label: "Mobile Frame",
+    width: 390,
+    height: 844,
+  },
+};
+
+const isFrameTool = (
+  tool: BuilderTool
+): tool is "frameDesktop" | "frameTablet" | "frameMobile" =>
+  tool === "frameDesktop" || tool === "frameTablet" || tool === "frameMobile";
 
 const objectColorValue = (color: unknown, fallback = "") =>
   typeof color === "string" ? color : fallback;
 
 const objectWithId = (object: fabric.Object | null | undefined) =>
-  object as FabricObjectWithId | null;
+  object as FabricObjectWithMeta | null;
+
+const isFrameObject = (
+  object: fabric.Object | null | undefined
+): object is FrameFabricObject => objectWithId(object)?.isFrame === true;
 
 const ensureObjectId = (object: fabric.Object | null | undefined) => {
   const resolvedObject = objectWithId(object);
@@ -54,6 +106,7 @@ const toActiveObjectPayload = (
   const { width, height } = dimensionsFromObject(resolvedObject);
   const payload: ActiveCanvasObject = {
     id: objectId,
+    name: resolvedObject.objectName ?? resolvedObject.type ?? "Layer",
     type: resolvedObject.type ?? "object",
     left: resolvedObject.left ?? 0,
     top: resolvedObject.top ?? 0,
@@ -64,6 +117,9 @@ const toActiveObjectPayload = (
     fill: objectColorValue(resolvedObject.fill),
     stroke: objectColorValue(resolvedObject.stroke),
     strokeWidth: resolvedObject.strokeWidth ?? 0,
+    parentId: resolvedObject.parentFrameId ?? null,
+    isFrame: resolvedObject.isFrame === true,
+    framePreset: resolvedObject.framePreset,
   };
 
   const textObject = resolvedObject as fabric.IText;
@@ -125,21 +181,185 @@ const createDrawableObject = (
   return null;
 };
 
+const createFrameObject = (
+  tool: "frameDesktop" | "frameTablet" | "frameMobile",
+  point: { x: number; y: number }
+) => {
+  const preset = FRAME_PRESETS[tool];
+
+  return new fabric.Rect({
+    left: point.x,
+    top: point.y,
+    width: preset.width,
+    height: preset.height,
+    rx: 0,
+    ry: 0,
+    fill: "#ffffff",
+    stroke: "#334155",
+    strokeWidth: 1.5,
+    shadow: new fabric.Shadow({
+      color: "rgba(15, 23, 42, 0.12)",
+      blur: 10,
+      offsetX: 0,
+      offsetY: 4,
+    }),
+    selectable: true,
+  }) as FabricObjectWithMeta;
+};
+
 export default function Page() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fabricRef = useRef<fabric.Canvas | null>(null);
   const isDrawingRef = useRef(false);
-  const shapeRef = useRef<FabricObjectWithId | null>(null);
+  const shapeRef = useRef<FabricObjectWithMeta | null>(null);
   const startPointRef = useRef<{ x: number; y: number } | null>(null);
   const historyRef = useRef<string[]>([]);
   const historyIndexRef = useRef(-1);
   const restoringHistoryRef = useRef(false);
   const batchMutationRef = useRef(false);
   const selectedToolRef = useRef<BuilderTool>("select");
+  const frameDragRef = useRef<{
+    frameId: string;
+    left: number;
+    top: number;
+  } | null>(null);
+  const drawToolRef = useRef<BuilderTool | null>(null);
 
   const dispatch = useDispatch();
   const selectedTool = useSelector(
     (state: RootState) => state.canvas.selectedTool
+  );
+
+  const getFrameChildren = useCallback(
+    (canvas: fabric.Canvas, frameId: string) =>
+      canvas
+        .getObjects()
+        .filter((item) => objectWithId(item)?.parentFrameId === frameId),
+    []
+  );
+
+  const frameClipRect = useCallback((frame: fabric.Object) => {
+    const bounds = frame.getBoundingRect();
+
+    return new fabric.Rect({
+      left: bounds.left,
+      top: bounds.top,
+      width: Math.max(1, bounds.width),
+      height: Math.max(1, bounds.height),
+      absolutePositioned: true,
+      rx: 0,
+      ry: 0,
+    });
+  }, []);
+
+  const syncFrameChildrenClipping = useCallback(
+    (canvas: fabric.Canvas, frame: fabric.Object) => {
+      const frameId = ensureObjectId(frame);
+      if (!frameId) return;
+
+      getFrameChildren(canvas, frameId).forEach((child) => {
+        if (child === frame) return;
+        child.clipPath = frameClipRect(frame);
+        child.setCoords();
+      });
+    },
+    [frameClipRect, getFrameChildren]
+  );
+
+  const syncAllFrameRelations = useCallback(
+    (canvas: fabric.Canvas) => {
+      const frames = canvas.getObjects().filter((item) => isFrameObject(item));
+      const frameById = new Map(
+        frames
+          .map((frame) => [ensureObjectId(frame), frame] as const)
+          .filter(
+            (entry): entry is [string, FrameFabricObject] => Boolean(entry[0])
+          )
+      );
+
+      canvas.getObjects().forEach((item) => {
+        const meta = objectWithId(item);
+        if (!meta) return;
+
+        if (meta.parentFrameId && frameById.has(meta.parentFrameId)) {
+          const frame = frameById.get(meta.parentFrameId)!;
+          meta.clipPath = frameClipRect(frame);
+          meta.setCoords();
+          return;
+        }
+
+        if (meta.parentFrameId && !frameById.has(meta.parentFrameId)) {
+          meta.parentFrameId = null;
+        }
+
+        if (!isFrameObject(meta)) {
+          meta.clipPath = undefined;
+        }
+      });
+    },
+    [frameClipRect]
+  );
+
+  const frameContainingPoint = useCallback(
+    (canvas: fabric.Canvas, point: { x: number; y: number }) => {
+      const frames = canvas
+        .getObjects()
+        .filter((item) => isFrameObject(item))
+        .reverse();
+
+      return (
+        frames.find((frame) => {
+          const bounds = frame.getBoundingRect();
+          return (
+            point.x >= bounds.left &&
+            point.x <= bounds.left + bounds.width &&
+            point.y >= bounds.top &&
+            point.y <= bounds.top + bounds.height
+          );
+        }) ?? null
+      );
+    },
+    []
+  );
+
+  const frameForObject = useCallback(
+    (canvas: fabric.Canvas, object: fabric.Object | null | undefined) => {
+      const parentFrameId = objectWithId(object)?.parentFrameId;
+      if (!parentFrameId) return null;
+
+      return (
+        canvas
+          .getObjects()
+          .find((item) => objectWithId(item)?.objectId === parentFrameId) ?? null
+      );
+    },
+    []
+  );
+
+  const assignObjectToFrame = useCallback(
+    (
+      object: fabric.Object,
+      frame: fabric.Object | null,
+      options?: { keepCurrentFrame?: boolean }
+    ) => {
+      const meta = objectWithId(object);
+      if (!meta || isFrameObject(meta)) return;
+
+      if (!frame) {
+        if (!options?.keepCurrentFrame) {
+          meta.parentFrameId = null;
+          meta.clipPath = undefined;
+        }
+        return;
+      }
+
+      const frameId = ensureObjectId(frame);
+      if (!frameId) return;
+
+      meta.parentFrameId = frameId;
+      meta.clipPath = frameClipRect(frame);
+    },
+    [frameClipRect]
   );
 
   const syncCanvasState = useCallback(
@@ -147,6 +367,7 @@ export default function Page() {
       const objects = canvas.getObjects();
       const layers = [...objects].reverse().map((object, index) => {
         const objectId = ensureObjectId(object) ?? `${object.type}-${index}`;
+        const meta = objectWithId(object);
         const rawType = object.type ?? "object";
         const type = rawType
           .split("-")
@@ -155,9 +376,12 @@ export default function Page() {
 
         return {
           id: objectId,
-          name: `${type} ${index + 1}`,
+          name: meta?.objectName ?? `${type} ${index + 1}`,
           type: rawType,
           visible: object.visible !== false,
+          parentId: meta?.parentFrameId ?? null,
+          isFrame: meta?.isFrame === true,
+          framePreset: meta?.framePreset,
         };
       });
 
@@ -218,6 +442,7 @@ export default function Page() {
       restoringHistoryRef.current = true;
       try {
         await canvas.loadFromJSON(snapshot);
+        syncAllFrameRelations(canvas);
         canvas.requestRenderAll();
         historyIndexRef.current = nextIndex;
         syncCanvasState(canvas);
@@ -226,7 +451,7 @@ export default function Page() {
         syncHistoryAvailability();
       }
     },
-    [syncCanvasState, syncHistoryAvailability]
+    [syncAllFrameRelations, syncCanvasState, syncHistoryAvailability]
   );
 
   const deleteSelected = useCallback(() => {
@@ -239,9 +464,24 @@ export default function Page() {
     batchMutationRef.current = true;
     if (activeObject.type === "activeSelection") {
       const selection = activeObject as fabric.ActiveSelection;
-      selection.getObjects().forEach((object) => canvas.remove(object));
+      const objectsToDelete = new Set<fabric.Object>(selection.getObjects());
+
+      selection.getObjects().forEach((object) => {
+        const objectId = ensureObjectId(object);
+        if (!objectId || !isFrameObject(object)) return;
+
+        getFrameChildren(canvas, objectId).forEach((child) =>
+          objectsToDelete.add(child)
+        );
+      });
+
+      objectsToDelete.forEach((object) => canvas.remove(object));
       canvas.discardActiveObject();
     } else {
+      const frameId = ensureObjectId(activeObject);
+      if (frameId && isFrameObject(activeObject)) {
+        getFrameChildren(canvas, frameId).forEach((child) => canvas.remove(child));
+      }
       canvas.remove(activeObject);
     }
     batchMutationRef.current = false;
@@ -249,7 +489,7 @@ export default function Page() {
     canvas.requestRenderAll();
     syncCanvasState(canvas);
     pushHistory(canvas);
-  }, [pushHistory, syncCanvasState]);
+  }, [getFrameChildren, pushHistory, syncCanvasState]);
 
   const clearCanvas = useCallback(() => {
     const canvas = fabricRef.current;
@@ -314,7 +554,13 @@ export default function Page() {
   );
 
   const updateActiveObject = useCallback(
-    (updates: Partial<ActiveCanvasObject>) => {
+    (
+      updates: Partial<ActiveCanvasObject>,
+      options?: {
+        commitHistory?: boolean;
+        syncStore?: boolean;
+      }
+    ) => {
       const canvas = fabricRef.current;
       if (!canvas) return;
 
@@ -380,8 +626,13 @@ export default function Page() {
 
       activeObject.setCoords();
       canvas.requestRenderAll();
-      syncCanvasState(canvas);
-      pushHistory(canvas);
+
+      if (options?.syncStore !== false) {
+        syncCanvasState(canvas);
+      }
+      if (options?.commitHistory !== false) {
+        pushHistory(canvas);
+      }
     },
     [pushHistory, syncCanvasState]
   );
@@ -394,13 +645,57 @@ export default function Page() {
     if (!activeObject || activeObject.type === "activeSelection") return;
 
     try {
+      const activeMeta = objectWithId(activeObject);
+      const sourceFrameId = ensureObjectId(activeObject);
       const clonedObject = (await (activeObject as any).clone()) as fabric.Object;
-      ensureObjectId(clonedObject);
+      const clonedMeta = objectWithId(clonedObject);
+
+      const clonedId = ensureObjectId(clonedObject);
+      if (clonedMeta && activeMeta) {
+        clonedMeta.objectName = activeMeta.objectName
+          ? `${activeMeta.objectName} Copy`
+          : clonedMeta.objectName;
+      }
+
       clonedObject.set({
         left: (activeObject.left ?? 0) + 20,
         top: (activeObject.top ?? 0) + 20,
       });
       canvas.add(clonedObject);
+
+      if (isFrameObject(activeObject) && sourceFrameId && clonedId) {
+        const sourceChildren = getFrameChildren(canvas, sourceFrameId);
+        for (const child of sourceChildren) {
+          const clonedChild = (await (child as any).clone()) as fabric.Object;
+          ensureObjectId(clonedChild);
+          const childMeta = objectWithId(clonedChild);
+
+          if (childMeta) {
+            childMeta.parentFrameId = clonedId;
+            childMeta.objectName = childMeta.objectName
+              ? `${childMeta.objectName} Copy`
+              : childMeta.objectName;
+          }
+
+          clonedChild.set({
+            left: (child.left ?? 0) + 20,
+            top: (child.top ?? 0) + 20,
+          });
+
+          canvas.add(clonedChild);
+          assignObjectToFrame(clonedChild, clonedObject, {
+            keepCurrentFrame: true,
+          });
+        }
+      } else {
+        const parentFrame = frameForObject(canvas, activeObject);
+        assignObjectToFrame(clonedObject, parentFrame, { keepCurrentFrame: true });
+      }
+
+      if (isFrameObject(clonedObject)) {
+        syncFrameChildrenClipping(canvas, clonedObject);
+      }
+
       canvas.setActiveObject(clonedObject);
       canvas.requestRenderAll();
       syncCanvasState(canvas);
@@ -408,7 +703,14 @@ export default function Page() {
     } catch {
       // clone can fail for unsupported object types
     }
-  }, [pushHistory, syncCanvasState]);
+  }, [
+    assignObjectToFrame,
+    frameForObject,
+    getFrameChildren,
+    pushHistory,
+    syncCanvasState,
+    syncFrameChildrenClipping,
+  ]);
 
   const addImageFromFile = useCallback(
     (file: File) => {
@@ -422,15 +724,35 @@ export default function Page() {
         const image = await fabric.Image.fromURL(reader.result);
         ensureObjectId(image);
 
-        const maxWidth = Math.max(220, canvas.getWidth() * 0.35);
+        const active = canvas.getActiveObject();
+        const activeFrame = isFrameObject(active)
+          ? active
+          : frameForObject(canvas, active);
+
+        const maxWidth = activeFrame
+          ? Math.max(160, activeFrame.getBoundingRect().width * 0.6)
+          : Math.max(220, canvas.getWidth() * 0.35);
         if ((image.width ?? 0) > maxWidth) {
           image.scaleToWidth(maxWidth);
         }
 
-        image.set({
-          left: canvas.getWidth() / 2 - image.getScaledWidth() / 2,
-          top: canvas.getHeight() / 2 - image.getScaledHeight() / 2,
-        });
+        if (activeFrame) {
+          const frameBounds = activeFrame.getBoundingRect();
+          image.set({
+            left: frameBounds.left + frameBounds.width / 2 - image.getScaledWidth() / 2,
+            top:
+              frameBounds.top +
+              frameBounds.height / 2 -
+              image.getScaledHeight() / 2,
+          });
+          assignObjectToFrame(image, activeFrame);
+        } else {
+          image.set({
+            left: canvas.getWidth() / 2 - image.getScaledWidth() / 2,
+            top: canvas.getHeight() / 2 - image.getScaledHeight() / 2,
+          });
+          assignObjectToFrame(image, null);
+        }
 
         canvas.add(image);
         canvas.setActiveObject(image);
@@ -441,7 +763,7 @@ export default function Page() {
 
       reader.readAsDataURL(file);
     },
-    [pushHistory, syncCanvasState]
+    [assignObjectToFrame, frameForObject, pushHistory, syncCanvasState]
   );
 
   const undo = useCallback(() => {
@@ -456,6 +778,12 @@ export default function Page() {
 
   useEffect(() => {
     if (!canvasRef.current) return;
+
+    if ((fabric as any).FabricObject) {
+      (fabric as any).FabricObject.customProperties = [
+        ...BUILDER_CUSTOM_PROPERTIES,
+      ];
+    }
 
     const canvas = new fabric.Canvas(canvasRef.current, {
       preserveObjectStacking: true,
@@ -510,9 +838,53 @@ export default function Page() {
       if (nativeEvent?.altKey) return;
 
       const currentTool = selectedToolRef.current;
+      const target = canvas.findTarget(event.e);
+
+      if (isFrameObject(target)) {
+        const frameId = ensureObjectId(target);
+        if (frameId) {
+          frameDragRef.current = {
+            frameId,
+            left: target.left ?? 0,
+            top: target.top ?? 0,
+          };
+        }
+      } else {
+        frameDragRef.current = null;
+      }
+
       if (currentTool === "select" || currentTool === "image") return;
 
       const pointer = canvas.getPointer(event.e);
+      const parentFrame = frameContainingPoint(canvas, pointer);
+
+      if (isFrameTool(currentTool)) {
+        const preset = FRAME_PRESETS[currentTool];
+        const frame = createFrameObject(currentTool, {
+          x: pointer.x,
+          y: pointer.y,
+        });
+
+        ensureObjectId(frame);
+        const frameMeta = objectWithId(frame);
+        if (frameMeta) {
+          frameMeta.isFrame = true;
+          frameMeta.framePreset = preset.preset;
+          frameMeta.parentFrameId = null;
+          frameMeta.objectName = `${preset.label} ${canvas
+            .getObjects()
+            .filter((item) => isFrameObject(item)).length + 1}`;
+        }
+
+        canvas.add(frame);
+        canvas.setActiveObject(frame);
+        canvas.requestRenderAll();
+        syncCanvasState(canvas);
+        pushHistory(canvas);
+        dispatch(setSelectedTool("select"));
+        return;
+      }
+
       if (currentTool === "text") {
         const text = new fabric.IText("Text", {
           left: pointer.x,
@@ -524,6 +896,11 @@ export default function Page() {
         });
 
         ensureObjectId(text);
+        const textMeta = objectWithId(text);
+        if (textMeta) {
+          textMeta.objectName = "Text";
+        }
+        assignObjectToFrame(text, parentFrame);
         canvas.add(text);
         canvas.setActiveObject(text);
         text.enterEditing();
@@ -536,6 +913,7 @@ export default function Page() {
 
       if (currentTool === "freeform") {
         canvas.isDrawingMode = true;
+        drawToolRef.current = "freeform";
         return;
       }
 
@@ -543,11 +921,19 @@ export default function Page() {
       if (!shape) return;
 
       ensureObjectId(shape);
+      const shapeMeta = objectWithId(shape);
+      if (shapeMeta) {
+        const defaultName =
+          shape.type?.charAt(0).toUpperCase() + (shape.type?.slice(1) ?? "");
+        shapeMeta.objectName = defaultName || "Shape";
+      }
+      assignObjectToFrame(shape, parentFrame);
       canvas.discardActiveObject();
       canvas.add(shape);
       canvas.setActiveObject(shape);
       shapeRef.current = objectWithId(shape);
       startPointRef.current = { x: pointer.x, y: pointer.y };
+      drawToolRef.current = currentTool;
       isDrawingRef.current = true;
       dispatch(setIsDrawing(true));
     };
@@ -595,10 +981,17 @@ export default function Page() {
     };
 
     const onMouseUp = () => {
-      if (!isDrawingRef.current) return;
+      if (!isDrawingRef.current) {
+        frameDragRef.current = null;
+        drawToolRef.current = null;
+        return;
+      }
 
       isDrawingRef.current = false;
+      frameDragRef.current = null;
       dispatch(setIsDrawing(false));
+      const drawnTool = drawToolRef.current;
+      drawToolRef.current = null;
 
       const currentShape = shapeRef.current;
       shapeRef.current = null;
@@ -622,6 +1015,15 @@ export default function Page() {
       canvas.requestRenderAll();
       syncCanvasState(canvas);
       pushHistory(canvas);
+
+      if (
+        drawnTool === "rectangle" ||
+        drawnTool === "circle" ||
+        drawnTool === "triangle" ||
+        drawnTool === "line"
+      ) {
+        dispatch(setSelectedTool("select"));
+      }
     };
 
     const onObjectAdded = (
@@ -630,17 +1032,91 @@ export default function Page() {
       const target = event.target;
       if (!target) return;
       ensureObjectId(target);
+      const meta = objectWithId(target);
+      if (meta && !meta.objectName) {
+        if (meta.isFrame) {
+          const presetLabel =
+            meta.framePreset === "mobile"
+              ? "Mobile Frame"
+              : meta.framePreset === "tablet"
+                ? "Tablet Frame"
+                : "Desktop Frame";
+          meta.objectName = presetLabel;
+        } else {
+          const rawType = target.type ?? "layer";
+          meta.objectName = rawType.charAt(0).toUpperCase() + rawType.slice(1);
+        }
+      }
+
+      syncAllFrameRelations(canvas);
       syncCanvasState(canvas);
     };
 
     const onObjectRemoved = () => {
+      syncAllFrameRelations(canvas);
       syncCanvasState(canvas);
       if (!restoringHistoryRef.current && !batchMutationRef.current) {
         pushHistory(canvas);
       }
     };
 
-    const onObjectModified = () => {
+    const onObjectMoving = (
+      event: fabric.TEvent & { target?: fabric.Object }
+    ) => {
+      const target = event.target;
+      if (!target || !isFrameObject(target)) return;
+
+      const frameId = ensureObjectId(target);
+      if (!frameId) return;
+
+      const dragState = frameDragRef.current;
+      if (!dragState || dragState.frameId !== frameId) {
+        frameDragRef.current = {
+          frameId,
+          left: target.left ?? 0,
+          top: target.top ?? 0,
+        };
+        syncFrameChildrenClipping(canvas, target);
+        return;
+      }
+
+      const nextLeft = target.left ?? 0;
+      const nextTop = target.top ?? 0;
+      const deltaX = nextLeft - dragState.left;
+      const deltaY = nextTop - dragState.top;
+
+      if (deltaX !== 0 || deltaY !== 0) {
+        getFrameChildren(canvas, frameId).forEach((child) => {
+          child.set({
+            left: (child.left ?? 0) + deltaX,
+            top: (child.top ?? 0) + deltaY,
+          });
+          child.setCoords();
+        });
+      }
+
+      frameDragRef.current = {
+        frameId,
+        left: nextLeft,
+        top: nextTop,
+      };
+      syncFrameChildrenClipping(canvas, target);
+      canvas.requestRenderAll();
+    };
+
+    const onObjectModified = (
+      event: fabric.TEvent & { target?: fabric.Object }
+    ) => {
+      const target = event.target;
+      if (target && isFrameObject(target)) {
+        syncFrameChildrenClipping(canvas, target);
+      } else if (target && target.type !== "activeSelection") {
+        const center = target.getCenterPoint();
+        const frame = frameContainingPoint(canvas, { x: center.x, y: center.y });
+        assignObjectToFrame(target, frame);
+      }
+
+      syncAllFrameRelations(canvas);
       syncCanvasState(canvas);
       if (!restoringHistoryRef.current && !batchMutationRef.current) {
         pushHistory(canvas);
@@ -652,9 +1128,25 @@ export default function Page() {
     ) => {
       if (!event.path) return;
       ensureObjectId(event.path);
+      const pathMeta = objectWithId(event.path);
+      if (pathMeta && !pathMeta.objectName) {
+        pathMeta.objectName = "Free Draw";
+      }
+
+      const bounds = event.path.getBoundingRect();
+      const frame = frameContainingPoint(canvas, {
+        x: bounds.left + bounds.width / 2,
+        y: bounds.top + bounds.height / 2,
+      });
+      assignObjectToFrame(event.path, frame);
+
       syncCanvasState(canvas);
       if (!restoringHistoryRef.current) {
         pushHistory(canvas);
+      }
+
+      if (selectedToolRef.current === "freeform") {
+        dispatch(setSelectedTool("select"));
       }
     };
 
@@ -668,6 +1160,7 @@ export default function Page() {
 
     canvas.on("object:added", onObjectAdded as any);
     canvas.on("object:removed", onObjectRemoved as any);
+    canvas.on("object:moving", onObjectMoving as any);
     canvas.on("object:modified", onObjectModified as any);
     canvas.on("path:created", onPathCreated as any);
 
@@ -677,6 +1170,7 @@ export default function Page() {
     historyRef.current = [snapshotCanvas(canvas)];
     historyIndexRef.current = 0;
     syncHistoryAvailability();
+    syncAllFrameRelations(canvas);
     syncCanvasState(canvas);
 
     setBuilderRuntime({
@@ -700,16 +1194,21 @@ export default function Page() {
     };
   }, [
     addImageFromFile,
+    assignObjectToFrame,
     bringToFront,
     clearCanvas,
     deleteSelected,
     dispatch,
     duplicateSelected,
+    frameContainingPoint,
+    getFrameChildren,
     pushHistory,
     redo,
     selectObjectById,
     sendToBack,
+    syncAllFrameRelations,
     syncCanvasState,
+    syncFrameChildrenClipping,
     syncHistoryAvailability,
     undo,
     updateActiveObject,
@@ -776,6 +1275,12 @@ export default function Page() {
 
       if (key === "v") {
         dispatch(setSelectedTool("select"));
+      } else if (key === "d") {
+        dispatch(setSelectedTool("frameDesktop"));
+      } else if (key === "b") {
+        dispatch(setSelectedTool("frameTablet"));
+      } else if (key === "m") {
+        dispatch(setSelectedTool("frameMobile"));
       } else if (key === "r") {
         dispatch(setSelectedTool("rectangle"));
       } else if (key === "c") {

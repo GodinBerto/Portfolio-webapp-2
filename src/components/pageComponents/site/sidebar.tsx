@@ -15,9 +15,12 @@ export default function Sidebar() {
     setOpenDropdown((prev) => (prev === section ? null : section));
   };
 
-  const handleButtonClick = (label: string) => {
-    console.log(`Clicked: ${label}`);
-    // You can add routing or other logic here
+  const handleButtonClick = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.history.replaceState(null, "", `#${sectionId}`);
   };
 
   return (
@@ -45,7 +48,7 @@ export default function Sidebar() {
                   {section.dropdowns.map((item, idx) => (
                     <button
                       key={idx}
-                      onClick={() => handleButtonClick(item.name)}
+                      onClick={() => handleButtonClick(item.id)}
                       className="text-start"
                     >
                       {item.name}

@@ -1,5 +1,10 @@
 import { ActiveCanvasObject } from "@/store/slice/builder/canvasSlice";
 
+type UpdateObjectOptions = {
+  commitHistory?: boolean;
+  syncStore?: boolean;
+};
+
 type BuilderRuntime = {
   deleteSelected: () => void;
   clearCanvas: () => void;
@@ -7,7 +12,10 @@ type BuilderRuntime = {
   redo: () => void;
   duplicateSelected: () => void;
   selectObjectById: (objectId: string) => void;
-  updateActiveObject: (updates: Partial<ActiveCanvasObject>) => void;
+  updateActiveObject: (
+    updates: Partial<ActiveCanvasObject>,
+    options?: UpdateObjectOptions
+  ) => void;
   bringToFront: () => void;
   sendToBack: () => void;
   addImageFromFile: (file: File) => void;

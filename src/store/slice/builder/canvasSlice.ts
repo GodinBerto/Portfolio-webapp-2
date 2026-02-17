@@ -8,17 +8,25 @@ export type BuilderShapeTool =
   | "freeform"
   | "image";
 
-export type BuilderTool = BuilderShapeTool | "select" | "text";
+export type FramePreset = "desktop" | "tablet" | "mobile";
+
+export type FrameTool = "frameDesktop" | "frameTablet" | "frameMobile";
+
+export type BuilderTool = BuilderShapeTool | FrameTool | "select" | "text";
 
 export type CanvasLayer = {
   id: string;
   name: string;
   type: string;
   visible: boolean;
+  parentId?: string | null;
+  isFrame?: boolean;
+  framePreset?: FramePreset;
 };
 
 export type ActiveCanvasObject = {
   id: string;
+  name: string;
   type: string;
   left: number;
   top: number;
@@ -33,6 +41,9 @@ export type ActiveCanvasObject = {
   fontSize?: number;
   fontFamily?: string;
   fontWeight?: string;
+  parentId?: string | null;
+  isFrame?: boolean;
+  framePreset?: FramePreset;
 };
 
 interface CanvasState {

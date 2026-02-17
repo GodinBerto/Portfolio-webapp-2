@@ -14,6 +14,7 @@ import {
   Undo2,
 } from "lucide-react";
 import ShapesTool from "./tools/shapes";
+import FramesTool from "./tools/frames";
 import { ToolbarButtonProps } from "@/types/builder";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,6 +42,7 @@ export default function Toolbar() {
         active={selectedTool === "text"}
       />
       <ShapesTool />
+      <FramesTool />
       <ToolbarButton
         icon={<Pencil size={16} />}
         onClick={() => dispatch(setSelectedTool("freeform"))}
