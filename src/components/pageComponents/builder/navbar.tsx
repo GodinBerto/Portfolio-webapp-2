@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, CircleHelp, LogOut } from "lucide-react";
 import ThemeToggler from "../theme-toggle";
@@ -9,10 +9,14 @@ import ActiveUsers from "./users/activeUsers";
 import { DropdownItem } from "./dropdown";
 import { dropdownItems } from "@/constants/builder";
 import Button1 from "@/components/do-not-touch/buttons/button1";
+import { useSearchParams } from "next/navigation";
 
 export default function BuilderNavbar() {
   const [project] = useState("Website Builder");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
+  const searchParams = useSearchParams();
+  const roomId = searchParams.get("roomId");
 
   const homeItem = useMemo(
     () => dropdownItems.find((item) => item.label === "Go to home"),
@@ -25,6 +29,32 @@ export default function BuilderNavbar() {
       ),
     []
   );
+
+  const handleShare = async () => {
+    if (typeof window === "undefined") return;
+
+    const text = roomId
+      ? [
+          `Room ID: ${roomId}`,
+          `Join Link: ${window.location.href}`,
+        ]
+          .filter(Boolean)
+          .join("\n")
+      : window.location.href;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareCopied(true);
+    } catch {
+      setShareCopied(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!shareCopied) return;
+    const timeout = window.setTimeout(() => setShareCopied(false), 1800);
+    return () => window.clearTimeout(timeout);
+  }, [shareCopied]);
 
   return (
     <header className="flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-white dark:bg-semiblack shadow-sm relative h-[60px] z-30">
@@ -110,7 +140,9 @@ export default function BuilderNavbar() {
         <div className="flex -space-x-2">
           <ActiveUsers />
         </div>
-        <Button1>Share</Button1>
+        <Button1 onClick={handleShare}>
+          {shareCopied ? "Copied" : roomId ? "Invite" : "Share"}
+        </Button1>
         <Link
           href="/site/docs/shortcuts"
           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 text-gray-600 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"

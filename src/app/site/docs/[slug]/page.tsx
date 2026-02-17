@@ -62,12 +62,13 @@ const renderBlock = (block: DocsContentBlock, index: number) => {
   );
 };
 
-export default function DocsSlugPage({
+export default async function DocsSlugPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const doc = getDocBySlug(params.slug);
+  const resolvedParams = await params;
+  const doc = getDocBySlug(resolvedParams.slug);
   if (!doc) {
     notFound();
   }
