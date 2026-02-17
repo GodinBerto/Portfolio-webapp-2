@@ -4,6 +4,7 @@ import {
   BringToFront,
   ChevronDown,
   Copy,
+  Hand,
   MousePointer2,
   Pencil,
   Redo2,
@@ -35,6 +36,11 @@ export default function Toolbar() {
         icon={<MousePointer2 size={16} />}
         onClick={() => dispatch(setSelectedTool("select"))}
         active={selectedTool === "select"}
+      />
+      <ToolbarButton
+        icon={<Hand size={16} />}
+        onClick={() => dispatch(setSelectedTool("hand"))}
+        active={selectedTool === "hand"}
       />
       <ToolbarButton
         icon={<Type size={16} />}

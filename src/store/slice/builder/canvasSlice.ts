@@ -5,6 +5,9 @@ export type BuilderShapeTool =
   | "circle"
   | "triangle"
   | "line"
+  | "diamond"
+  | "star"
+  | "arrow"
   | "freeform"
   | "image";
 
@@ -12,7 +15,7 @@ export type FramePreset = "desktop" | "tablet" | "mobile";
 
 export type FrameTool = "frameDesktop" | "frameTablet" | "frameMobile";
 
-export type BuilderTool = BuilderShapeTool | FrameTool | "select" | "text";
+export type BuilderTool = BuilderShapeTool | FrameTool | "select" | "text" | "hand";
 
 export type CanvasLayer = {
   id: string;
@@ -61,6 +64,9 @@ const shapeTools: BuilderShapeTool[] = [
   "circle",
   "triangle",
   "line",
+  "diamond",
+  "star",
+  "arrow",
   "freeform",
   "image",
 ];

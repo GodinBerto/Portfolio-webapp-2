@@ -1,6 +1,15 @@
 "use client";
 
-import { Circle, ImagePlus, Minus, Square, Triangle } from "lucide-react";
+import {
+  Circle,
+  Diamond,
+  ImagePlus,
+  Minus,
+  MoveUpRight,
+  Sparkles,
+  Square,
+  Triangle,
+} from "lucide-react";
 import { ToolbarButton, ToolbarItem } from "../toolbar";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -17,6 +26,9 @@ const shapeIcons: Record<BuilderShapeTool, JSX.Element> = {
   circle: <Circle size={16} />,
   triangle: <Triangle size={16} />,
   line: <Minus size={16} />,
+  diamond: <Diamond size={16} />,
+  star: <Sparkles size={16} />,
+  arrow: <MoveUpRight size={16} />,
   freeform: <Minus size={16} />,
   image: <ImagePlus size={16} />,
 };
@@ -31,9 +43,15 @@ export default function ShapesTool() {
   );
   const selectedTool = useSelector((state: RootState) => state.canvas.selectedTool);
 
-  const isShapeToolActive = ["rectangle", "circle", "triangle", "line"].includes(
-    selectedTool
-  );
+  const isShapeToolActive = [
+    "rectangle",
+    "circle",
+    "triangle",
+    "line",
+    "diamond",
+    "star",
+    "arrow",
+  ].includes(selectedTool);
 
   return (
     <>
@@ -65,6 +83,24 @@ export default function ShapesTool() {
           label="Line"
           shortcut="L"
           onClick={() => dispatch(setSelectedShape("line"))}
+        />
+        <ToolbarItem
+          icon={<Diamond size={16} />}
+          label="Diamond"
+          shortcut="O"
+          onClick={() => dispatch(setSelectedShape("diamond"))}
+        />
+        <ToolbarItem
+          icon={<Sparkles size={16} />}
+          label="Star"
+          shortcut="S"
+          onClick={() => dispatch(setSelectedShape("star"))}
+        />
+        <ToolbarItem
+          icon={<MoveUpRight size={16} />}
+          label="Arrow"
+          shortcut="A"
+          onClick={() => dispatch(setSelectedShape("arrow"))}
         />
         <ToolbarItem
           icon={<ImagePlus size={16} />}

@@ -59,6 +59,7 @@ export type Reaction = {
 };
 
 export type ReactionEvent = {
+  type: "reaction";
   x: number;
   y: number;
   value: string;

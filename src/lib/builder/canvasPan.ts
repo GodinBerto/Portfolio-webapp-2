@@ -1,152 +1,173 @@
 import * as fabric from "fabric";
 
-let isPanning = false;
-let targetX = 0;
-let targetY = 0;
-let currentCanvas: fabric.Canvas | null = null;
+type SetupCanvasPanOptions = {
+  isPanMode?: () => boolean;
+  minZoom?: number;
+  maxZoom?: number;
+};
 
-// For Alt+Mouse drag panning
-let isAltDragging = false;
-let lastX = 0;
-let lastY = 0;
+const clamp = (value: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, value));
 
-/**
- * Animate the viewport towards targetX/Y for smooth panning
- */
-function animatePan() {
-  if (!currentCanvas || !isPanning) return;
-  const vpt = currentCanvas.viewportTransform;
-  if (!vpt) return;
+const normalizeWheelDelta = (value: number, deltaMode: number) => {
+  if (deltaMode === WheelEvent.DOM_DELTA_LINE) {
+    return value * 16;
+  }
 
-  // Smooth interpolation (lerp)
-  vpt[4] += (targetX - vpt[4]) * 0.15;
-  vpt[5] += (targetY - vpt[5]) * 0.15;
+  if (deltaMode === WheelEvent.DOM_DELTA_PAGE) {
+    return value * 96;
+  }
 
-  currentCanvas.setViewportTransform(vpt);
-  currentCanvas.requestRenderAll();
+  return value;
+};
 
-  requestAnimationFrame(animatePan);
-}
+export function setupCanvasPan(
+  canvas: fabric.Canvas,
+  options?: SetupCanvasPanOptions
+) {
+  const minZoom = options?.minZoom ?? 0.2;
+  const maxZoom = options?.maxZoom ?? 6;
 
-/**
- * Zoom to cursor (trackpad pinch / ctrl+scroll)
- */
-function zoomToCursor(canvas: fabric.Canvas, evt: WheelEvent) {
-  let zoom = canvas.getZoom();
-  zoom *= 0.999 ** evt.deltaY;
-  zoom = Math.max(0.2, Math.min(zoom, 4));
+  let isDragPanning = false;
+  let lastX = 0;
+  let lastY = 0;
 
-  const pointer = canvas.getPointer(evt);
-  const zoomPoint = new fabric.Point(pointer.x, pointer.y);
+  let targetPanX = canvas.viewportTransform?.[4] ?? 0;
+  let targetPanY = canvas.viewportTransform?.[5] ?? 0;
+  let panFrame: number | null = null;
 
-  canvas.zoomToPoint(zoomPoint, zoom);
-}
-
-/**
- * Zoom to canvas center (mouse scroll wheel)
- */
-function zoomToCenter(canvas: fabric.Canvas, evt: WheelEvent) {
-  let zoom = canvas.getZoom();
-  zoom *= 0.999 ** evt.deltaY;
-  zoom = Math.max(0.2, Math.min(zoom, 4));
-
-  const center = new fabric.Point(
-    canvas.getWidth() / 2,
-    canvas.getHeight() / 2
-  );
-  canvas.zoomToPoint(center, zoom);
-}
-
-/**
- * Handle mouse wheel events
- */
-export function handleMouseWheel(canvas: fabric.Canvas, opt: fabric.TEvent) {
-  const evt = opt.e as WheelEvent;
-  const vpt = canvas.viewportTransform;
-  if (!vpt) return;
-
-  if (evt.ctrlKey) {
-    // ✅ Pinch or ctrl+scroll → zoom to cursor
-    zoomToCursor(canvas, evt);
-  } else if (evt.deltaMode === WheelEvent.DOM_DELTA_LINE) {
-    // ✅ Mouse scroll wheel → zoom to center
-    zoomToCenter(canvas, evt);
-  } else {
-    // ✅ Trackpad two-finger scroll → pan
-    if (!isPanning) {
-      isPanning = true;
-      targetX = vpt[4];
-      targetY = vpt[5];
-      currentCanvas = canvas;
-      animatePan();
+  const ensureViewport = () => {
+    if (!canvas.viewportTransform) {
+      canvas.viewportTransform = [1, 0, 0, 1, 0, 0];
     }
 
-    targetX -= evt.deltaX;
-    targetY -= evt.deltaY;
-  }
+    return canvas.viewportTransform;
+  };
 
-  evt.preventDefault();
-  evt.stopPropagation();
-}
+  const runPanAnimation = () => {
+    panFrame = null;
 
-/**
- * Handle Alt + Mouse drag pan
- */
-export function handleAltMouseDown(canvas: fabric.Canvas, opt: fabric.TEvent) {
-  const evt = opt.e as MouseEvent;
-  if (evt.altKey) {
-    isAltDragging = true;
+    const viewport = ensureViewport();
+    const deltaX = targetPanX - viewport[4];
+    const deltaY = targetPanY - viewport[5];
+
+    const doneX = Math.abs(deltaX) < 0.1;
+    const doneY = Math.abs(deltaY) < 0.1;
+
+    viewport[4] = doneX ? targetPanX : viewport[4] + deltaX * 0.28;
+    viewport[5] = doneY ? targetPanY : viewport[5] + deltaY * 0.28;
+
+    canvas.setViewportTransform(viewport);
+    canvas.requestRenderAll();
+
+    if (!doneX || !doneY) {
+      panFrame = requestAnimationFrame(runPanAnimation);
+    }
+  };
+
+  const queuePanDelta = (deltaX: number, deltaY: number) => {
+    targetPanX += deltaX;
+    targetPanY += deltaY;
+
+    if (panFrame === null) {
+      panFrame = requestAnimationFrame(runPanAnimation);
+    }
+  };
+
+  const getWheelPoint = (evt: WheelEvent) => {
+    const rect = canvas.upperCanvasEl?.getBoundingClientRect();
+    if (!rect) {
+      return new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
+    }
+
+    return new fabric.Point(evt.clientX - rect.left, evt.clientY - rect.top);
+  };
+
+  const zoomBy = (point: fabric.Point, factor: number) => {
+    const currentZoom = canvas.getZoom();
+    const nextZoom = clamp(currentZoom * factor, minZoom, maxZoom);
+
+    if (Math.abs(nextZoom - currentZoom) < 0.0001) return;
+
+    canvas.zoomToPoint(point, nextZoom);
+
+    const viewport = ensureViewport();
+    targetPanX = viewport[4];
+    targetPanY = viewport[5];
+
+    canvas.requestRenderAll();
+  };
+
+  const onWheel = (opt: fabric.TEvent) => {
+    const evt = opt.e as WheelEvent;
+    const deltaX = normalizeWheelDelta(evt.deltaX, evt.deltaMode);
+    const deltaY = normalizeWheelDelta(evt.deltaY, evt.deltaMode);
+
+    const isZoomIntent =
+      evt.ctrlKey || evt.metaKey || evt.deltaMode === WheelEvent.DOM_DELTA_LINE;
+
+    if (isZoomIntent) {
+      const zoomPoint =
+        evt.ctrlKey || evt.metaKey
+          ? getWheelPoint(evt)
+          : new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2);
+      const zoomFactor = Math.exp(-deltaY * 0.0018);
+      zoomBy(zoomPoint, zoomFactor);
+    } else {
+      queuePanDelta(-deltaX, -deltaY);
+    }
+
+    evt.preventDefault();
+    evt.stopPropagation();
+  };
+
+  const shouldDragPan = (evt: MouseEvent) =>
+    evt.altKey || options?.isPanMode?.() === true;
+
+  const onMouseDown = (opt: fabric.TEvent) => {
+    const evt = opt.e as MouseEvent;
+    if (!shouldDragPan(evt)) return;
+
+    isDragPanning = true;
     lastX = evt.clientX;
     lastY = evt.clientY;
-    currentCanvas = canvas;
-  }
-}
+    canvas.defaultCursor = "grabbing";
+    canvas.requestRenderAll();
+  };
 
-export function handleAltMouseMove(canvas: fabric.Canvas, opt: fabric.TEvent) {
-  if (!isAltDragging) return;
+  const onMouseMove = (opt: fabric.TEvent) => {
+    if (!isDragPanning) return;
 
-  const evt = opt.e as MouseEvent;
-  const vpt = canvas.viewportTransform;
-  if (!vpt) return;
+    const evt = opt.e as MouseEvent;
+    const deltaX = evt.clientX - lastX;
+    const deltaY = evt.clientY - lastY;
+    lastX = evt.clientX;
+    lastY = evt.clientY;
 
-  const dx = evt.clientX - lastX;
-  const dy = evt.clientY - lastY;
+    queuePanDelta(deltaX, deltaY);
+  };
 
-  vpt[4] += dx;
-  vpt[5] += dy;
+  const onMouseUp = () => {
+    if (!isDragPanning) return;
+    isDragPanning = false;
+    canvas.defaultCursor = options?.isPanMode?.() ? "grab" : "default";
+    canvas.requestRenderAll();
+  };
 
-  canvas.setViewportTransform(vpt);
-  canvas.requestRenderAll();
+  canvas.on("mouse:wheel", onWheel);
+  canvas.on("mouse:down", onMouseDown);
+  canvas.on("mouse:move", onMouseMove);
+  canvas.on("mouse:up", onMouseUp);
 
-  lastX = evt.clientX;
-  lastY = evt.clientY;
-}
+  return () => {
+    canvas.off("mouse:wheel", onWheel);
+    canvas.off("mouse:down", onMouseDown);
+    canvas.off("mouse:move", onMouseMove);
+    canvas.off("mouse:up", onMouseUp);
 
-export function handleAltMouseUp() {
-  isAltDragging = false;
-}
-
-/**
- * Stop trackpad panning
- */
-export function stopPan() {
-  isPanning = false;
-}
-
-/**
- * Setup all pan + zoom event bindings
- */
-export function setupCanvasPan(canvas: fabric.Canvas) {
-  currentCanvas = canvas;
-
-  // ✅ Trackpad pan + zoom, mouse wheel zoom
-  canvas.on("mouse:wheel", (opt) => handleMouseWheel(canvas, opt));
-
-  // ✅ Alt + drag pan
-  canvas.on("mouse:down", (opt) => handleAltMouseDown(canvas, opt));
-  canvas.on("mouse:move", (opt) => handleAltMouseMove(canvas, opt));
-  canvas.on("mouse:up", () => {
-    stopPan();
-    handleAltMouseUp();
-  });
+    if (panFrame !== null) {
+      cancelAnimationFrame(panFrame);
+      panFrame = null;
+    }
+  };
 }

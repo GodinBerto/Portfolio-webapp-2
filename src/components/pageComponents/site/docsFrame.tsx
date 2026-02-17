@@ -1,12 +1,27 @@
+import DocsMiniSidebar from "./docsMiniSidebar";
 import Sidebar from "./sidebar";
 
-export default function DocsFrame({ children }: _IChildren) {
+type DocsFrameProps = {
+  children: React.ReactNode;
+  currentSlug?: string;
+};
+
+export default function DocsFrame({ children, currentSlug }: DocsFrameProps) {
   return (
-    <div className="h-[calc(100vh-65px)] flex w-full">
-      <div>
-        <Sidebar />
+    <div className="flex min-h-[calc(100vh-64px)] w-full">
+      <div className="hidden shrink-0 md:block">
+        <div className="sticky top-16 h-[calc(100vh-64px)]">
+          <Sidebar currentSlug={currentSlug} />
+        </div>
       </div>
-      <div className="ml-[300px] mt-[3px]">{children}</div>
+
+      <div className="min-w-0 flex-1">{children}</div>
+
+      <div className="hidden shrink-0 xl:block">
+        <div className="sticky top-16 h-[calc(100vh-64px)]">
+          <DocsMiniSidebar currentSlug={currentSlug} />
+        </div>
+      </div>
     </div>
   );
 }

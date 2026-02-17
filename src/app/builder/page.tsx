@@ -5,6 +5,7 @@ import * as fabric from "fabric";
 import { v4 as uuidv4 } from "uuid";
 import Live from "@/components/pageComponents/builder/live";
 import { setupCanvasPan } from "@/lib/builder/canvasPan";
+import { useBroadcastEvent, useEventListener } from "@liveblocks/react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import {
@@ -19,6 +20,19 @@ import {
   setSelectedTool,
 } from "@/store/slice/builder/canvasSlice";
 import { resetBuilderRuntime, setBuilderRuntime } from "@/lib/builder/runtime";
+
+type CanvasSyncRequestEvent = {
+  type: "builder:canvas-sync-request";
+  sender: string;
+};
+
+type CanvasSyncEvent = {
+  type: "builder:canvas-sync";
+  sender: string;
+  snapshot: string;
+};
+
+type CanvasRealtimeEvent = CanvasSyncRequestEvent | CanvasSyncEvent;
 
 type FabricObjectWithMeta = fabric.Object & {
   objectId?: string;
@@ -136,6 +150,22 @@ const toActiveObjectPayload = (
 const snapshotCanvas = (canvas: fabric.Canvas) =>
   JSON.stringify(canvas.toJSON());
 
+const createStarPoints = (spikes = 5, outerRadius = 56, innerRadius = 24) => {
+  const points: { x: number; y: number }[] = [];
+  const step = Math.PI / spikes;
+
+  for (let i = 0; i < spikes * 2; i += 1) {
+    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+    const angle = i * step - Math.PI / 2;
+    points.push({
+      x: outerRadius + Math.cos(angle) * radius,
+      y: outerRadius + Math.sin(angle) * radius,
+    });
+  }
+
+  return points;
+};
+
 const createDrawableObject = (
   tool: BuilderTool,
   point: { x: number; y: number }
@@ -178,6 +208,41 @@ const createDrawableObject = (
     });
   }
 
+  if (tool === "diamond") {
+    return new fabric.Rect({
+      ...sharedShapeProps,
+      width: 1,
+      height: 1,
+      angle: 45,
+    });
+  }
+
+  if (tool === "star") {
+    return new fabric.Polygon(createStarPoints(), {
+      ...sharedShapeProps,
+      width: 112,
+      height: 112,
+      originX: "left",
+      originY: "top",
+      scaleX: 0.01,
+      scaleY: 0.01,
+    });
+  }
+
+  if (tool === "arrow") {
+    return new fabric.Path("M 0 18 L 74 18 L 74 6 L 110 28 L 74 50 L 74 38 L 0 38 z", {
+      left: point.x,
+      top: point.y,
+      fill: "rgba(37, 99, 235, 0.20)",
+      stroke: "#2563eb",
+      strokeWidth: 2,
+      originX: "left",
+      originY: "top",
+      scaleX: 0.01,
+      scaleY: 0.01,
+    });
+  }
+
   return null;
 };
 
@@ -216,8 +281,14 @@ export default function Page() {
   const historyRef = useRef<string[]>([]);
   const historyIndexRef = useRef(-1);
   const restoringHistoryRef = useRef(false);
+  const applyingRemoteSnapshotRef = useRef(false);
   const batchMutationRef = useRef(false);
   const selectedToolRef = useRef<BuilderTool>("select");
+  const sessionIdRef = useRef(uuidv4());
+  const pendingBroadcastFrameRef = useRef<number | null>(null);
+  const lastBroadcastSnapshotRef = useRef<string>("");
+  const remoteSnapshotChainRef = useRef<Promise<void>>(Promise.resolve());
+  const hasRequestedInitialSyncRef = useRef(false);
   const frameDragRef = useRef<{
     frameId: string;
     left: number;
@@ -225,6 +296,7 @@ export default function Page() {
   } | null>(null);
   const drawToolRef = useRef<BuilderTool | null>(null);
 
+  const broadcast = useBroadcastEvent();
   const dispatch = useDispatch();
   const selectedTool = useSelector(
     (state: RootState) => state.canvas.selectedTool
@@ -408,6 +480,39 @@ export default function Page() {
     );
   }, [dispatch]);
 
+  const broadcastSnapshot = useCallback(
+    (canvas: fabric.Canvas, options?: { force?: boolean }) => {
+      if (restoringHistoryRef.current || applyingRemoteSnapshotRef.current) {
+        return;
+      }
+
+      const snapshot = snapshotCanvas(canvas);
+      if (!options?.force && snapshot === lastBroadcastSnapshotRef.current) {
+        return;
+      }
+
+      lastBroadcastSnapshotRef.current = snapshot;
+      broadcast({
+        type: "builder:canvas-sync",
+        sender: sessionIdRef.current,
+        snapshot,
+      } satisfies CanvasSyncEvent);
+    },
+    [broadcast]
+  );
+
+  const queueSnapshotBroadcast = useCallback(
+    (canvas: fabric.Canvas) => {
+      if (pendingBroadcastFrameRef.current != null) return;
+
+      pendingBroadcastFrameRef.current = window.requestAnimationFrame(() => {
+        pendingBroadcastFrameRef.current = null;
+        broadcastSnapshot(canvas);
+      });
+    },
+    [broadcastSnapshot]
+  );
+
   const pushHistory = useCallback(
     (canvas: fabric.Canvas) => {
       if (restoringHistoryRef.current) return;
@@ -426,8 +531,9 @@ export default function Page() {
       historyRef.current.push(nextSnapshot);
       historyIndexRef.current = historyRef.current.length - 1;
       syncHistoryAvailability();
+      queueSnapshotBroadcast(canvas);
     },
-    [syncHistoryAvailability]
+    [queueSnapshotBroadcast, syncHistoryAvailability]
   );
 
   const restoreHistoryAt = useCallback(
@@ -449,10 +555,70 @@ export default function Page() {
       } finally {
         restoringHistoryRef.current = false;
         syncHistoryAvailability();
+        broadcastSnapshot(canvas, { force: true });
       }
+    },
+    [
+      broadcastSnapshot,
+      syncAllFrameRelations,
+      syncCanvasState,
+      syncHistoryAvailability,
+    ]
+  );
+
+  const applyRemoteSnapshot = useCallback(
+    (snapshot: string) => {
+      remoteSnapshotChainRef.current = remoteSnapshotChainRef.current
+        .then(async () => {
+          const canvas = fabricRef.current;
+          if (!canvas) return;
+
+          applyingRemoteSnapshotRef.current = true;
+          restoringHistoryRef.current = true;
+          try {
+            await canvas.loadFromJSON(snapshot);
+            syncAllFrameRelations(canvas);
+            canvas.discardActiveObject();
+            canvas.requestRenderAll();
+
+            historyRef.current = [snapshot];
+            historyIndexRef.current = 0;
+            lastBroadcastSnapshotRef.current = snapshot;
+            syncHistoryAvailability();
+            syncCanvasState(canvas);
+          } finally {
+            restoringHistoryRef.current = false;
+            applyingRemoteSnapshotRef.current = false;
+          }
+        })
+        .catch(() => {
+          restoringHistoryRef.current = false;
+          applyingRemoteSnapshotRef.current = false;
+        });
     },
     [syncAllFrameRelations, syncCanvasState, syncHistoryAvailability]
   );
+
+  useEventListener((eventData) => {
+    const event = eventData.event as CanvasRealtimeEvent;
+    if (!event || typeof event !== "object" || !("type" in event)) {
+      return;
+    }
+
+    if (event.sender === sessionIdRef.current) return;
+
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+
+    if (event.type === "builder:canvas-sync-request") {
+      broadcastSnapshot(canvas, { force: true });
+      return;
+    }
+
+    if (event.type === "builder:canvas-sync" && typeof event.snapshot === "string") {
+      applyRemoteSnapshot(event.snapshot);
+    }
+  });
 
   const deleteSelected = useCallback(() => {
     const canvas = fabricRef.current;
@@ -506,6 +672,46 @@ export default function Page() {
     pushHistory(canvas);
   }, [pushHistory, syncCanvasState]);
 
+  const normalizeFrameStack = useCallback(
+    (canvas: fabric.Canvas, frame: fabric.Object) => {
+      const frameId = ensureObjectId(frame);
+      if (!frameId) return;
+
+      const children = getFrameChildren(canvas, frameId).sort(
+        (left, right) =>
+          canvas.getObjects().indexOf(left) - canvas.getObjects().indexOf(right)
+      );
+
+      children.forEach((child, offset) => {
+        const frameIndex = canvas.getObjects().indexOf(frame);
+        if (frameIndex < 0) return;
+        canvas.moveObjectTo(child, frameIndex + offset + 1);
+      });
+    },
+    [getFrameChildren]
+  );
+
+  const moveFrameBlock = useCallback(
+    (canvas: fabric.Canvas, frame: fabric.Object, direction: "front" | "back") => {
+      const frameId = ensureObjectId(frame);
+      if (!frameId) return;
+
+      const block = [frame, ...getFrameChildren(canvas, frameId)].sort(
+        (left, right) =>
+          canvas.getObjects().indexOf(left) - canvas.getObjects().indexOf(right)
+      );
+
+      if (direction === "front") {
+        block.forEach((item) => canvas.bringObjectToFront(item));
+      } else {
+        [...block].reverse().forEach((item) => canvas.sendObjectToBack(item));
+      }
+
+      normalizeFrameStack(canvas, frame);
+    },
+    [getFrameChildren, normalizeFrameStack]
+  );
+
   const bringToFront = useCallback(() => {
     const canvas = fabricRef.current;
     if (!canvas) return;
@@ -513,11 +719,40 @@ export default function Page() {
     const activeObject = canvas.getActiveObject();
     if (!activeObject || activeObject.type === "activeSelection") return;
 
-    (activeObject as any).bringToFront();
+    if (isFrameObject(activeObject)) {
+      moveFrameBlock(canvas, activeObject, "front");
+    } else {
+      const parentFrame = frameForObject(canvas, activeObject);
+
+      if (parentFrame) {
+        normalizeFrameStack(canvas, parentFrame);
+
+        const frameIndex = canvas.getObjects().indexOf(parentFrame);
+        if (frameIndex < 0) return;
+        const parentId = ensureObjectId(parentFrame);
+        const siblingCount = parentId
+          ? getFrameChildren(canvas, parentId).filter((item) => item !== activeObject)
+              .length
+          : 0;
+
+        canvas.moveObjectTo(activeObject, frameIndex + siblingCount + 1);
+        normalizeFrameStack(canvas, parentFrame);
+      } else {
+        canvas.bringObjectToFront(activeObject);
+      }
+    }
+
     canvas.requestRenderAll();
     syncCanvasState(canvas);
     pushHistory(canvas);
-  }, [pushHistory, syncCanvasState]);
+  }, [
+    frameForObject,
+    getFrameChildren,
+    moveFrameBlock,
+    normalizeFrameStack,
+    pushHistory,
+    syncCanvasState,
+  ]);
 
   const sendToBack = useCallback(() => {
     const canvas = fabricRef.current;
@@ -526,11 +761,32 @@ export default function Page() {
     const activeObject = canvas.getActiveObject();
     if (!activeObject || activeObject.type === "activeSelection") return;
 
-    (activeObject as any).sendToBack();
+    if (isFrameObject(activeObject)) {
+      moveFrameBlock(canvas, activeObject, "back");
+    } else {
+      const parentFrame = frameForObject(canvas, activeObject);
+
+      if (parentFrame) {
+        normalizeFrameStack(canvas, parentFrame);
+        const frameIndex = canvas.getObjects().indexOf(parentFrame);
+        if (frameIndex < 0) return;
+        canvas.moveObjectTo(activeObject, frameIndex + 1);
+        normalizeFrameStack(canvas, parentFrame);
+      } else {
+        canvas.sendObjectToBack(activeObject);
+      }
+    }
+
     canvas.requestRenderAll();
     syncCanvasState(canvas);
     pushHistory(canvas);
-  }, [pushHistory, syncCanvasState]);
+  }, [
+    frameForObject,
+    moveFrameBlock,
+    normalizeFrameStack,
+    pushHistory,
+    syncCanvasState,
+  ]);
 
   const selectObjectById = useCallback(
     (objectId: string) => {
@@ -632,9 +888,11 @@ export default function Page() {
       }
       if (options?.commitHistory !== false) {
         pushHistory(canvas);
+      } else {
+        queueSnapshotBroadcast(canvas);
       }
     },
-    [pushHistory, syncCanvasState]
+    [pushHistory, queueSnapshotBroadcast, syncCanvasState]
   );
 
   const duplicateSelected = useCallback(async () => {
@@ -690,6 +948,9 @@ export default function Page() {
       } else {
         const parentFrame = frameForObject(canvas, activeObject);
         assignObjectToFrame(clonedObject, parentFrame, { keepCurrentFrame: true });
+        if (parentFrame) {
+          normalizeFrameStack(canvas, parentFrame);
+        }
       }
 
       if (isFrameObject(clonedObject)) {
@@ -707,6 +968,7 @@ export default function Page() {
     assignObjectToFrame,
     frameForObject,
     getFrameChildren,
+    normalizeFrameStack,
     pushHistory,
     syncCanvasState,
     syncFrameChildrenClipping,
@@ -746,6 +1008,7 @@ export default function Page() {
               image.getScaledHeight() / 2,
           });
           assignObjectToFrame(image, activeFrame);
+          normalizeFrameStack(canvas, activeFrame);
         } else {
           image.set({
             left: canvas.getWidth() / 2 - image.getScaledWidth() / 2,
@@ -763,7 +1026,13 @@ export default function Page() {
 
       reader.readAsDataURL(file);
     },
-    [assignObjectToFrame, frameForObject, pushHistory, syncCanvasState]
+    [
+      assignObjectToFrame,
+      frameForObject,
+      normalizeFrameStack,
+      pushHistory,
+      syncCanvasState,
+    ]
   );
 
   const undo = useCallback(() => {
@@ -853,7 +1122,9 @@ export default function Page() {
         frameDragRef.current = null;
       }
 
-      if (currentTool === "select" || currentTool === "image") return;
+      if (currentTool === "select" || currentTool === "image" || currentTool === "hand") {
+        return;
+      }
 
       const pointer = canvas.getPointer(event.e);
       const parentFrame = frameContainingPoint(canvas, pointer);
@@ -902,6 +1173,9 @@ export default function Page() {
         }
         assignObjectToFrame(text, parentFrame);
         canvas.add(text);
+        if (parentFrame) {
+          normalizeFrameStack(canvas, parentFrame);
+        }
         canvas.setActiveObject(text);
         text.enterEditing();
         text.selectAll();
@@ -930,6 +1204,9 @@ export default function Page() {
       assignObjectToFrame(shape, parentFrame);
       canvas.discardActiveObject();
       canvas.add(shape);
+      if (parentFrame) {
+        normalizeFrameStack(canvas, parentFrame);
+      }
       canvas.setActiveObject(shape);
       shapeRef.current = objectWithId(shape);
       startPointRef.current = { x: pointer.x, y: pointer.y };
@@ -965,6 +1242,21 @@ export default function Page() {
           left: Math.min(startX, pointer.x),
           top: Math.min(startY, pointer.y),
         });
+      } else if (
+        drawToolRef.current === "star" ||
+        drawToolRef.current === "arrow"
+      ) {
+        const width = Math.max(6, Math.abs(pointer.x - startX));
+        const height = Math.max(6, Math.abs(pointer.y - startY));
+        const baseWidth = currentShape.width ?? width;
+        const baseHeight = currentShape.height ?? height;
+
+        currentShape.set({
+          left: Math.min(startX, pointer.x),
+          top: Math.min(startY, pointer.y),
+          scaleX: width / Math.max(1, baseWidth),
+          scaleY: height / Math.max(1, baseHeight),
+        });
       } else {
         const width = Math.abs(pointer.x - startX);
         const height = Math.abs(pointer.y - startY);
@@ -978,6 +1270,7 @@ export default function Page() {
 
       currentShape.setCoords();
       canvas.requestRenderAll();
+      queueSnapshotBroadcast(canvas);
     };
 
     const onMouseUp = () => {
@@ -1020,7 +1313,10 @@ export default function Page() {
         drawnTool === "rectangle" ||
         drawnTool === "circle" ||
         drawnTool === "triangle" ||
-        drawnTool === "line"
+        drawnTool === "line" ||
+        drawnTool === "diamond" ||
+        drawnTool === "star" ||
+        drawnTool === "arrow"
       ) {
         dispatch(setSelectedTool("select"));
       }
@@ -1064,7 +1360,11 @@ export default function Page() {
       event: fabric.TEvent & { target?: fabric.Object }
     ) => {
       const target = event.target;
-      if (!target || !isFrameObject(target)) return;
+      if (!target) return;
+      if (!isFrameObject(target)) {
+        queueSnapshotBroadcast(canvas);
+        return;
+      }
 
       const frameId = ensureObjectId(target);
       if (!frameId) return;
@@ -1102,6 +1402,7 @@ export default function Page() {
       };
       syncFrameChildrenClipping(canvas, target);
       canvas.requestRenderAll();
+      queueSnapshotBroadcast(canvas);
     };
 
     const onObjectModified = (
@@ -1111,9 +1412,16 @@ export default function Page() {
       if (target && isFrameObject(target)) {
         syncFrameChildrenClipping(canvas, target);
       } else if (target && target.type !== "activeSelection") {
+        const previousFrame = frameForObject(canvas, target);
         const center = target.getCenterPoint();
         const frame = frameContainingPoint(canvas, { x: center.x, y: center.y });
         assignObjectToFrame(target, frame);
+        if (previousFrame) {
+          normalizeFrameStack(canvas, previousFrame);
+        }
+        if (frame) {
+          normalizeFrameStack(canvas, frame);
+        }
       }
 
       syncAllFrameRelations(canvas);
@@ -1139,6 +1447,9 @@ export default function Page() {
         y: bounds.top + bounds.height / 2,
       });
       assignObjectToFrame(event.path, frame);
+      if (frame) {
+        normalizeFrameStack(canvas, frame);
+      }
 
       syncCanvasState(canvas);
       if (!restoringHistoryRef.current) {
@@ -1164,7 +1475,9 @@ export default function Page() {
     canvas.on("object:modified", onObjectModified as any);
     canvas.on("path:created", onPathCreated as any);
 
-    setupCanvasPan(canvas);
+    const cleanupCanvasPan = setupCanvasPan(canvas, {
+      isPanMode: () => selectedToolRef.current === "hand",
+    });
     window.addEventListener("resize", resizeCanvas);
 
     historyRef.current = [snapshotCanvas(canvas)];
@@ -1172,6 +1485,15 @@ export default function Page() {
     syncHistoryAvailability();
     syncAllFrameRelations(canvas);
     syncCanvasState(canvas);
+    queueSnapshotBroadcast(canvas);
+
+    if (!hasRequestedInitialSyncRef.current) {
+      hasRequestedInitialSyncRef.current = true;
+      broadcast({
+        type: "builder:canvas-sync-request",
+        sender: sessionIdRef.current,
+      } satisfies CanvasSyncRequestEvent);
+    }
 
     setBuilderRuntime({
       deleteSelected,
@@ -1189,6 +1511,11 @@ export default function Page() {
     return () => {
       window.removeEventListener("resize", resizeCanvas);
       resizeObserver?.disconnect();
+      cleanupCanvasPan();
+      if (pendingBroadcastFrameRef.current != null) {
+        cancelAnimationFrame(pendingBroadcastFrameRef.current);
+        pendingBroadcastFrameRef.current = null;
+      }
       resetBuilderRuntime();
       canvas.dispose();
     };
@@ -1201,8 +1528,11 @@ export default function Page() {
     dispatch,
     duplicateSelected,
     frameContainingPoint,
+    frameForObject,
     getFrameChildren,
+    normalizeFrameStack,
     pushHistory,
+    queueSnapshotBroadcast,
     redo,
     selectObjectById,
     sendToBack,
@@ -1212,6 +1542,7 @@ export default function Page() {
     syncHistoryAvailability,
     undo,
     updateActiveObject,
+    broadcast,
   ]);
 
   useEffect(() => {
@@ -1221,12 +1552,17 @@ export default function Page() {
     if (!canvas) return;
 
     const freeformMode = selectedTool === "freeform";
+    const handMode = selectedTool === "hand";
     canvas.isDrawingMode = freeformMode;
     canvas.selection = selectedTool === "select";
     canvas.skipTargetFind = !(
       selectedTool === "select" || selectedTool === "freeform"
     );
-    canvas.defaultCursor = selectedTool === "select" ? "default" : "crosshair";
+    canvas.defaultCursor = handMode
+      ? "grab"
+      : selectedTool === "select"
+        ? "default"
+        : "crosshair";
 
     if (freeformMode) {
       if (!canvas.freeDrawingBrush) {
@@ -1268,6 +1604,10 @@ export default function Page() {
         return;
       }
 
+      if (withMeta) {
+        return;
+      }
+
       if (key === "delete" || key === "backspace") {
         deleteSelected();
         return;
@@ -1275,6 +1615,8 @@ export default function Page() {
 
       if (key === "v") {
         dispatch(setSelectedTool("select"));
+      } else if (key === "h") {
+        dispatch(setSelectedTool("hand"));
       } else if (key === "d") {
         dispatch(setSelectedTool("frameDesktop"));
       } else if (key === "b") {
@@ -1289,6 +1631,12 @@ export default function Page() {
         dispatch(setSelectedTool("triangle"));
       } else if (key === "l") {
         dispatch(setSelectedTool("line"));
+      } else if (key === "o") {
+        dispatch(setSelectedTool("diamond"));
+      } else if (key === "s") {
+        dispatch(setSelectedTool("star"));
+      } else if (key === "a") {
+        dispatch(setSelectedTool("arrow"));
       } else if (key === "p") {
         dispatch(setSelectedTool("freeform"));
       } else if (key === "x") {

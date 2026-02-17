@@ -64,12 +64,19 @@ export default function Live({ canvasRef }: Props) {
   }, 100);
 
   useEventListener((eventData) => {
-    const event = eventData.event as ReactionEvent;
+    const event = eventData.event as Partial<ReactionEvent>;
+    if (event.type !== "reaction") return;
+    if (typeof event.x !== "number" || typeof event.y !== "number") return;
+    if (typeof event.value !== "string") return;
+    const x = event.x;
+    const y = event.y;
+    const value = event.value;
+
     setReaction((reactions) => {
       return reactions.concat([
         {
-          point: { x: event.x, y: event.y },
-          value: event.value,
+          point: { x, y },
+          value,
           timestamp: Date.now(),
         },
       ]);
