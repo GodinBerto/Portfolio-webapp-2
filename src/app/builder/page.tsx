@@ -8,8 +8,9 @@ import {
   type ComponentType,
 } from "react";
 import { useRouter } from "next/navigation";
+import Themes from "@/app/themes/page";
 import ThemeToggler from "@/components/pageComponents/theme-toggle";
-import { useTheme } from "@/context/themeContext";
+import { ThemeProvider, useTheme } from "@/context/themeContext";
 import {
   Bell,
   ChevronDown,
@@ -155,7 +156,7 @@ const buildEditorRoute = (projectId: string, roomId?: string) => {
 function BuilderHomeContent() {
   const router = useRouter();
   const { theme } = useTheme();
-  const [showThemes, setShowThemes] = useState(false); // State to toggle Themes visibility
+  const [showThemes, setShowThemes] = useState(false);
   const currentTheme = themeStyles[theme] || themeStyles.blue;
 
   const [projects, setProjects] = useState<BuilderProject[]>([]);
@@ -249,8 +250,12 @@ function BuilderHomeContent() {
     );
   }, [projects, searchQuery]);
 
+  const closeThemes = useCallback(() => {
+    setShowThemes(false);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#eff0f3] dark:bg-semiblack">
+    <div className="relative min-h-screen bg-[#eff0f3] dark:bg-semiblack">
       <div className="flex min-h-screen">
         <aside className="w-[260px] shrink-0 border-r border-gray-300 bg-white p-3 text-gray-700 dark:border-gray-800 dark:bg-semiblack dark:text-gray-200">
           <div className="mb-3 flex items-center justify-between px-2">
@@ -372,11 +377,11 @@ function BuilderHomeContent() {
 
               <button
                 type="button"
+                onClick={() => setShowThemes((prev) => !prev)}
+                aria-label="Open theme settings"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-semiblack dark:text-gray-300 dark:hover:bg-gray-900"
               >
-                {/* Theme Toggle */}
                 <SlidersHorizontal
-                  onClick={() => setShowThemes((prev) => !prev)}
                   size={18}
                   className="cursor-pointer transition-transform duration-200 hover:scale-110"
                 />
@@ -490,6 +495,7 @@ function BuilderHomeContent() {
           )}
         </main>
       </div>
+      {showThemes && <Themes closeThemes={closeThemes} />}
     </div>
   );
 }
@@ -520,8 +526,8 @@ function SidebarRow({
 
 export default function BuilderHomePage() {
   return (
-    <>
+    <ThemeProvider>
       <BuilderHomeContent />
-    </>
+    </ThemeProvider>
   );
 }
