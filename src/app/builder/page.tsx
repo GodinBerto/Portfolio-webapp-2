@@ -29,6 +29,7 @@ import {
   Sparkles,
   Star,
   Users,
+  SlidersHorizontal,
 } from "lucide-react";
 
 type BuilderProject = {
@@ -154,6 +155,7 @@ const buildEditorRoute = (projectId: string, roomId?: string) => {
 function BuilderHomeContent() {
   const router = useRouter();
   const { theme } = useTheme();
+  const [showThemes, setShowThemes] = useState(false); // State to toggle Themes visibility
   const currentTheme = themeStyles[theme] || themeStyles.blue;
 
   const [projects, setProjects] = useState<BuilderProject[]>([]);
@@ -367,17 +369,17 @@ function BuilderHomeContent() {
                 <Plus size={16} />
                 Create
               </button>
-              <button
-                type="button"
-                className="inline-flex h-10 items-center rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-semiblack dark:text-gray-200 dark:hover:bg-gray-900"
-              >
-                Share
-              </button>
+
               <button
                 type="button"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-100 dark:border-gray-700 dark:bg-semiblack dark:text-gray-300 dark:hover:bg-gray-900"
               >
-                <Settings2 size={15} />
+                {/* Theme Toggle */}
+                <SlidersHorizontal
+                  onClick={() => setShowThemes((prev) => !prev)}
+                  size={18}
+                  className="cursor-pointer transition-transform duration-200 hover:scale-110"
+                />
               </button>
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-300 bg-white dark:border-gray-700 dark:bg-semiblack">
                 <ThemeToggler />
