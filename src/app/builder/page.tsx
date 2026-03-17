@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import ThemeToggler from "@/components/pageComponents/theme-toggle";
-import { ThemeProvider, useTheme } from "@/context/themeContext";
+import { useTheme } from "@/context/themeContext";
 import {
   Bell,
   ChevronDown,
@@ -123,7 +123,10 @@ const formatEditedTime = (isoDate: string) => {
 };
 
 const createProjectId = () => {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
 
@@ -131,7 +134,9 @@ const createProjectId = () => {
 };
 
 const createRoomId = () => {
-  const base = createProjectId().replace(/[^a-zA-Z0-9]/g, "").slice(0, 12);
+  const base = createProjectId()
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(0, 12);
   return `room-${base || Date.now()}`;
 };
 
@@ -171,7 +176,7 @@ function BuilderHomeContent() {
 
     window.localStorage.setItem(
       BUILDER_PROJECTS_STORAGE_KEY,
-      JSON.stringify(nextProjects)
+      JSON.stringify(nextProjects),
     );
   }, []);
 
@@ -194,7 +199,7 @@ function BuilderHomeContent() {
       persistProjects(nextProjects);
       router.push(buildEditorRoute(projectId, resolvedRoomId));
     },
-    [persistProjects, projects, router]
+    [persistProjects, projects, router],
   );
 
   const createProject = useCallback(() => {
@@ -218,13 +223,10 @@ function BuilderHomeContent() {
 
     const joinLink = `${window.location.origin}${buildEditorRoute(
       project.id,
-      project.roomId
+      project.roomId,
     )}`;
 
-    const payload = [
-      `Room ID: ${project.roomId}`,
-      `Join Link: ${joinLink}`,
-    ]
+    const payload = [`Room ID: ${project.roomId}`, `Join Link: ${joinLink}`]
       .filter(Boolean)
       .join("\n");
 
@@ -241,7 +243,7 @@ function BuilderHomeContent() {
     if (!value) return projects;
 
     return projects.filter((project) =>
-      project.name.toLowerCase().includes(value)
+      project.name.toLowerCase().includes(value),
     );
   }, [projects, searchQuery]);
 
@@ -285,7 +287,9 @@ function BuilderHomeContent() {
 
           <div className="mt-4">
             <div className="mb-2 flex items-center gap-2 px-2">
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">Studio</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                Studio
+              </p>
               <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-blue-300">
                 Free
               </span>
@@ -300,7 +304,8 @@ function BuilderHomeContent() {
 
           <div className="mt-6 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-semiblack">
             <p className="text-[11px] leading-5 text-gray-500 dark:text-gray-300">
-              You&apos;re running out of files in your free team. Upgrade to keep creating.
+              You&apos;re running out of files in your free team. Upgrade to
+              keep creating.
             </p>
             <button
               type="button"
@@ -314,7 +319,9 @@ function BuilderHomeContent() {
             <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Projects Started
             </p>
-            <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{projects.length}</p>
+            <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
+              {projects.length}
+            </p>
             <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
               Every project opens as a live room.
             </p>
@@ -324,12 +331,17 @@ function BuilderHomeContent() {
         <main className="min-w-0 flex-1 px-6 py-5 text-gray-800 dark:text-gray-100">
           <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Studio</p>
+              <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                Studio
+              </p>
               <div className="flex items-center gap-3">
                 <h1 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
                   Team project
                 </h1>
-                <ChevronDown size={18} className="text-gray-400 dark:text-gray-500" />
+                <ChevronDown
+                  size={18}
+                  className="text-gray-400 dark:text-gray-500"
+                />
               </div>
               <div className="mt-3 flex items-center gap-2 text-xs">
                 <span
@@ -339,7 +351,9 @@ function BuilderHomeContent() {
                   Live Collaboration
                 </span>
                 {roomFeedback && (
-                  <span className="text-gray-600 dark:text-gray-300">{roomFeedback}</span>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    {roomFeedback}
+                  </span>
                 )}
               </div>
             </div>
@@ -402,8 +416,13 @@ function BuilderHomeContent() {
 
           {filteredProjects.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-16 text-center dark:border-gray-700 dark:bg-semiblack">
-              <FolderOpen className="mx-auto mb-4 text-gray-400 dark:text-gray-500" size={34} />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">No projects yet</h3>
+              <FolderOpen
+                className="mx-auto mb-4 text-gray-400 dark:text-gray-500"
+                size={34}
+              />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                No projects yet
+              </h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Create your first project to launch a live collaborative room.
               </p>
@@ -429,7 +448,9 @@ function BuilderHomeContent() {
                     {project.thumbnailDataUrl ? (
                       <div
                         className="h-full w-full bg-cover bg-top bg-no-repeat"
-                        style={{ backgroundImage: `url(${project.thumbnailDataUrl})` }}
+                        style={{
+                          backgroundImage: `url(${project.thumbnailDataUrl})`,
+                        }}
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -497,8 +518,8 @@ function SidebarRow({
 
 export default function BuilderHomePage() {
   return (
-    <ThemeProvider>
+    <>
       <BuilderHomeContent />
-    </ThemeProvider>
+    </>
   );
 }
